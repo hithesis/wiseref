@@ -1,0 +1,119 @@
+# Copyright (C) 2026 Junhao Wu. LPPL 1.3c or later.
+name: Extended compatibility
+
+on:
+  schedule:
+    - cron: '41 3 * * 1'
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: extended-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  packages:
+    name: Full package matrix (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: pinned-2026
+            texlive: '2026'
+            image: ghcr.io/xu-cheng/texlive-debian:20261001@sha256:78ac2204b8df113aca0561e8f173ad5b89ee51e90795173d2fe9bcf0fbce162e
+          - target: rolling-latest
+            texlive: latest
+            image: texlive/texlive:latest
+    container:
+      image: ${{ matrix.image }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      LANG: C.UTF-8
+      CI_TEXLIVE_IMAGE: ${{ matrix.image }}
+      max_print_line: '1000'
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up test tools
+        uses: ./.github/actions/setup-test-tools
+      - name: Verify and record the toolchain
+        run: python3 test/ci-environment.py --expected-year '${{ matrix.texlive }}' --output test/output/ci-environment.json
+      - name: Run core regressions on rolling TeX Live
+        if: matrix.target == 'rolling-latest'
+        run: make check
+      - name: Run all package interactions
+        if: ${{ !cancelled() }}
+        run: |
+          make sty
+          python3 test/packages.py --suite all --allow-known-baselines --jobs 2 --work test/output/packages-full
+      - name: Write test summary
+        if: ${{ !cancelled() }}
+        run: python3 test/ci-report.py --label 'Package matrix (${{ matrix.target }})' --summary "$GITHUB_STEP_SUMMARY"
+      - name: Upload test logs and result records
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.target }}
+          retention-days: 21
+          path: |
+            test/output/**/*.log
+            test/output/**/*.json
+            test/output/**/*.tex
+            test/output/**/candidate.sty
+
+  classes:
+    name: Real CTAN classes and twelve languages
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: ghcr.io/xu-cheng/texlive-debian:20261001@sha256:78ac2204b8df113aca0561e8f173ad5b89ee51e90795173d2fe9bcf0fbce162e
+    defaults:
+      run:
+        shell: bash
+    env:
+      LANG: C.UTF-8
+      CI_TEXLIVE_IMAGE: ghcr.io/xu-cheng/texlive-debian:20261001@sha256:78ac2204b8df113aca0561e8f173ad5b89ee51e90795173d2fe9bcf0fbce162e
+      max_print_line: '1000'
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up test tools
+        uses: ./.github/actions/setup-test-tools
+      - name: Restore test fonts
+        uses: actions/cache@v4
+        with:
+          path: test/output/ctan-cache/fonts
+          key: ctan-fonts-${{ runner.os }}-${{ hashFiles('test/ctan-cases.json') }}
+      - name: Verify and record the toolchain
+        run: python3 test/ci-environment.py --expected-year 2026 --output test/output/ci-environment.json
+      - name: Run downloaded CTAN class fixtures
+        run: |
+          make sty
+          python3 test/ctan.py --download --jobs 2 --cache test/output/ctan-cache --work test/output/ctan-classes
+      - name: Write test summary
+        if: ${{ !cancelled() }}
+        run: python3 test/ci-report.py --label 'CTAN classes and languages' --summary "$GITHUB_STEP_SUMMARY"
+      - name: Upload class logs and source provenance
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctan-class-results
+          retention-days: 21
+          path: |
+            test/output/**/*.log
+            test/output/**/*.json
+            test/output/ctan-classes/**/*.tex
+            test/output/ctan-classes/candidate.sty
+            test/output/ctan-classes/README.md

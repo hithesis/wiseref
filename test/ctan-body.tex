@@ -1,0 +1,63 @@
+\begin{document}
+\ifdefined\WiseBeamer\begin{frame}[allowframebreaks]{Reference targets}\fi
+\ifdefined\WiseChapter\chapter{Methods}\label{chapter-target}\fi
+\section{Methods}\label{topic}
+\begin{figure}[htbp]
+  \centering\rule{20mm}{3mm}
+  \caption{Sample image}\label{picture}
+\end{figure}
+\begin{figure}[htbp]
+  \centering\rule{20mm}{3mm}
+  \caption{Second image}\label{picture-b}
+\end{figure}
+\begin{figure}[htbp]\rule{20mm}{3mm}\caption{Third image}\label{picture-c}\end{figure}
+\begin{table}[htbp]
+  \centering\begin{tabular}{cc}A&B\\C&D\end{tabular}
+  \caption{Sample table}\label{result}
+\end{table}
+\begin{equation}a=b\label{balance}\end{equation}
+\begin{align}c&=d\label{line-a}\\e&=f\label{line-b}\end{align}
+\begin{equation}g=h\tag{S}\label{tagged}\end{equation}
+\begin{equation}i=j\tag*{S}\label{bare-tagged}\end{equation}
+\begin{wisethm}\label{statement}A numbered statement.\end{wisethm}
+\begin{wiselemma}\label{shared}A statement sharing a counter.\end{wiselemma}
+\begin{enumerate}\item An item.\label{item}\end{enumerate}
+A footnote\footnote{A labelled note.\label{note}}.
+\ifdefined\WiseBeamer\end{frame}\begin{frame}{Appendix targets}\fi
+\WiseAppendix
+\ifdefined\WiseChapter\chapter{Supplement}\else\section{Supplement}\fi
+\label{supplement}
+\begin{equation}k=l\label{appendix-equation}\end{equation}
+\ifdefined\WiseIEEE\section*{Unnumbered notes}\label{ieee-unnumbered}\fi
+\ifdefined\WiseBeamer\end{frame}\begin{frame}[allowframebreaks]{References}\else\clearpage\fi
+Standard references: \ref{picture}, \ref{result}, \eqref{balance}, \ref{statement}, \ref{shared}.
+\par
+\ifdefined\WiseChecks
+  \WiseExpected{picture}{figure}{normal}
+  \WiseExpected{picture-b}{figure}{normal}
+  \WiseExpected{picture-c}{figure}{normal}
+  \WiseExpected{result}{table}{normal}
+  \WiseExpected{balance}{equation}{normal}
+  \WiseExpected{line-a}{equation}{normal}
+  \WiseExpected{line-b}{equation}{normal}
+  \WiseExpected{tagged}{equation}{tag}
+  \WiseExpected{bare-tagged}{equation}{bare}
+  \WiseExpected{statement}{wisethm}{normal}
+  \WiseExpected{shared}{wiselemma}{normal}
+  \WiseExpected{supplement}{appendix}{normal}
+  \WiseExpected{appendix-equation}{equation}{normal}
+  \ifdefined\WiseIEEE\WiseExpected{ieee-unnumbered}{}{normal}\fi
+  \WiseRenderCase{figure}{picture}
+  \WiseRenderCase{figureplural}{picture,picture-b}
+  {\wiserefsetup{compress=true}\WiseRenderCase{figurerange}{picture,picture-b,picture-c}}
+  \WiseRenderCase{table}{result}
+  \WiseRenderCase{equation}{balance}
+  \WiseRenderCase{theorem}{statement}
+  \WiseRenderCase{lemma}{shared}
+  \WiseRenderBuiltin{theorem}{statement}
+  \WiseRenderBuiltin{lemma}{shared}
+  \WiseRenderCase{appendix}{supplement}
+  \WiseRenderCase{mixed}{picture,result,balance}
+\fi
+\ifdefined\WiseBeamer\end{frame}\fi
+\end{document}

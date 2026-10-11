@@ -1,0 +1,76 @@
+% Acceptance fixture for the independently supplied wiseref.sty.
+% Explicit ASCII formatting makes the assertions independent of installed CJK fonts.
+\wiserefsetup{
+  lang=en,
+  sort=false,
+  compress=false,
+  links=numbers-and-affixes,
+  group-separator={;~},
+  group-last-separator={~and~},
+  number-separator={,~},
+  number-last-separator={~and~},
+  range-separator={--},
+  figure={prefix={Fig.~},prefix-plural={Figs.~},suffix={},number-format={#1}},
+  table={prefix={Table~},suffix={},number-format={#1}},
+  section={prefix={Section~},suffix={},number-format={#1}},
+  equation={prefix={Eq.~},suffix={},number-format={\textup{(#1)}}},
+}
+\newcommand\CheckReference[2]{\par\noindent CASE-#1-BEGIN #2 CASE-#1-END\par}
+\begin{document}
+\section{Section}\label{part}
+\begin{figure}[htbp]\caption{First}\label{alpha}\end{figure}
+\begin{figure}[htbp]\caption{Second}\label{beta}\end{figure}
+\begin{figure}[htbp]\caption{Third}\label{gamma}\end{figure}
+\begin{table}[htbp]\caption{Table}\label{eq:not-equation}\end{table}
+\begin{equation}a=b\label{fig:not-figure}\end{equation}
+\begin{equation}c=d\label{other-equation}\end{equation}
+\begin{equation}e=f\tag{S}\label{tagged}\end{equation}
+\begin{equation}g=h\tag*{S}\label{bare-tagged}\end{equation}
+\clearpage
+\CheckReference{single}{\wref{alpha}}
+\CheckReference{prefix}{\wref[Photo~]{alpha}}
+\CheckReference{suffix}{\wref{part}[.]}
+\CheckReference{both}{\wref[Part~]{part}[!]}
+\CheckReference{empty-prefix}{\wref[]{alpha}}
+\CheckReference{empty-both}{\wref[]{part}[]}
+\CheckReference{equation}{\wref{fig:not-figure}}
+\CheckReference{equation-number}{\wref[]{fig:not-figure}[]}
+\CheckReference{tagged}{\wref{tagged}}
+\CheckReference{bare-tagged}{\wref{bare-tagged}}
+\CheckReference{same-type}{\wref{alpha,beta}}
+\CheckReference{equations}{\wref{fig:not-figure,other-equation}}
+\CheckReference{mixed}{\wref{alpha,beta,eq:not-equation,fig:not-figure}}
+\CheckReference{input-order}{\wref{beta,eq:not-equation,alpha}}
+\CheckReference{mixed-prefix}{\wref[X~]{alpha,eq:not-equation}}
+\CheckReference{star}{\wref*{alpha}}
+\CheckReference{after-local}{\wref{alpha}}
+{\wiserefsetup{figure={prefix={Photo~}}}
+ \CheckReference{scoped-setup}{\wref{alpha}}}
+\CheckReference{after-group}{\wref{alpha}}
+{\wiserefsetup{links=none}
+ \CheckReference{link-off}{\wref{alpha}}}
+\CheckReference{link-on}{\wref{alpha}}
+{\wiserefsetup{sort=true}
+ \CheckReference{sorted}{\wref{beta,eq:not-equation,alpha}}}
+{\wiserefsetup{compress=true}
+ \CheckReference{range}{\wref{alpha,beta,gamma}}
+ \CheckReference{not-range}{\wref{gamma,beta,alpha}}}
+\CheckReference{after-sort}{\wref{beta,alpha}}
+{\wiserefsetup{lang=zh,equation={prefix={Eq.~}}}
+ \CheckReference{zh-equation-format}{\wref{fig:not-figure}}}
+{\wiserefsetup{lang=en,equation={prefix={Eq.~}}}
+ \CheckReference{en-equation-format}{\wref{fig:not-figure}}}
+\appendix
+\section{Appendix}\label{appendix}
+\CheckReference{appendix}{\wref{appendix}}
+{\wiserefsetup{links=numbers}
+ \CheckReference{number-link}{\wref{alpha}}}
+{\wiserefsetup{links=numbers-and-affixes}
+ \CheckReference{links-all}{\wref[Head~]{alpha,beta}[~Tail]}}
+{\wiserefsetup{links=numbers}
+ \CheckReference{links-num}{\wref[Head~]{alpha,beta}[~Tail]}}
+{\wiserefsetup{links=none}
+ \CheckReference{links-off}{\wref[Head~]{alpha,beta}[~Tail]}}
+\CheckReference{links-star}{\wref*[Head~]{alpha,beta}[~Tail]}
+\CheckReference{links-reset}{\wref[Head~]{alpha,beta}[~Tail]}
+\end{document}

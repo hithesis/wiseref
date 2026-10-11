@@ -1,0 +1,1918 @@
+% \iffalse meta-comment
+% Copyright (C) 2026 Junhao Wu
+% Distributed under the LaTeX Project Public License, version 1.3c or later.
+% This work has the LPPL maintenance status "maintained".
+% The Current Maintainer is Junhao Wu.
+% Contact: andrew.junhao.wu@gmail.com
+% Repository: https://github.com/hithesis/wiseref
+% The documented source is wiseref.dtx; wiseref.ins extracts wiseref.sty.
+% \fi
+% \iffalse
+%<*driver>
+\expandafter\newif\csname ifWiseDocEnglish\endcsname
+\WiseDocEnglishtrue
+\ifdefined\WiseManualChinese\WiseDocEnglishfalse\fi
+\documentclass[a4paper]{ltxdoc}
+\ifWiseDocEnglish
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\else
+\usepackage[scheme=plain,fontset=fandol]{ctex}
+\usepackage{lmodern}
+\setCJKfamilyfont{wiserefmanualmono}{FandolFang-Regular.otf}[AutoFakeBold=2,AutoFakeSlant=.2]
+\renewcommand\CJKttdefault{wiserefmanualmono}
+\fi
+\newcommand\WiseDocText[2]{\ifWiseDocEnglish#1\else#2\fi}
+\usepackage[left=32mm,right=24mm,top=23mm,bottom=24mm,
+  headheight=14pt,headsep=7mm,footskip=10mm,marginparwidth=24mm,marginparsep=4mm]{geometry}
+\usepackage{amsmath,booktabs,listings,xcolor,caption,titlesec,fancyhdr,enumitem}
+\definecolor{WiseAccent}{HTML}{28566C}
+\definecolor{WiseInk}{HTML}{24313B}
+\definecolor{WiseSoft}{HTML}{F3F6F8}
+\definecolor{WiseBorder}{HTML}{C8D3DA}
+\usepackage{wiseref}
+\usepackage[unicode,hyperindex=false,colorlinks=true,
+  linkcolor=WiseAccent,urlcolor=WiseAccent,bookmarksnumbered=true]{hyperref}
+\ifWiseDocEnglish\wiserefsetup{lang=en}\else\wiserefsetup{lang=zh}\fi
+\ifWiseDocEnglish\else
+  \renewcommand\figurename{图}\renewcommand\tablename{表}
+\fi
+\captionsetup{font=small,labelfont=bf,labelsep=space,skip=4pt,hypcap=false}
+\titleformat{\section}{\Large\sffamily\bfseries\color{WiseAccent}}{\thesection}{.75em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{WiseInk}}{\thesubsection}{.75em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries\color{WiseInk}}{\thesubsubsection}{.75em}{}
+\titlespacing*{\section}{0pt}{2.1ex plus .4ex}{1.1ex}
+\titlespacing*{\subsection}{0pt}{1.7ex plus .3ex}{.8ex}
+\titlespacing*{\subsubsection}{0pt}{1.4ex plus .3ex}{.6ex}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{WiseAccent}wiseref}
+\fancyhead[R]{\small\sffamily\nouppercase{\rightmark}}
+\fancyfoot[C]{\small\sffamily\thepage}
+\renewcommand\headrulewidth{.3pt}
+\renewcommand\sectionmark[1]{\markboth{\thesection\quad #1}{\thesection\quad #1}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\sffamily\thepage}\renewcommand\headrulewidth{0pt}}
+\setlist[itemize]{leftmargin=1.6em,topsep=4pt,itemsep=2pt,parsep=0pt}
+\lstset{language=[LaTeX]TeX,basicstyle=\small\ttfamily,
+  columns=fullflexible,keepspaces=true,breaklines=true,
+  keywordstyle=\color{WiseAccent}\bfseries,commentstyle=\color{gray}\itshape,
+  showstringspaces=false,frame=single,framerule=.3pt,framesep=6pt,
+  rulecolor=\color{WiseBorder},backgroundcolor=\color{WiseSoft},
+  aboveskip=6pt,belowskip=6pt,gobble=2}
+\AddToHook{env/lstlisting/before}{\par\noindent\begin{minipage}{\linewidth}}
+\AddToHook{env/lstlisting/after}{\end{minipage}\par}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.45em}
+\linespread{1.04}
+\makeatletter
+\renewcommand\maketitle{%
+  \thispagestyle{plain}%
+  {\Large\sffamily\bfseries\color{WiseAccent}\@title\par}%
+  \smallskip{\small\@author\hfill\@date\par}%
+  \medskip{\color{WiseBorder}\hrule}\bigskip}
+\makeatother
+\ExplSyntaxOn
+\cs_generate_variant:Nn\tl_replace_all:Nnn{Nee}
+\cs_new_protected:Npn\WiseDocCode #1
+  {\group_begin:
+   \small\ttfamily\raggedright
+   \tl_set:Ne\l_tmpa_tl{\tl_to_str:n{#1}}
+   \tl_replace_all:Nee\l_tmpa_tl{\c_hash_str\c_hash_str}{\c_hash_str}
+   \tl_use:N\l_tmpa_tl\par
+   \group_end:}
+\ExplSyntaxOff
+% Manual-only counters and real label targets; no auxiliary records are fabricated.
+\newcounter{WiseDocExample}
+\newcounter{WiseDocChapter}
+\newcounter{experiment}
+\newcommand\WiseDocLive[4]{%
+  \par\addvspace{7pt}\noindent\begin{minipage}{\linewidth}%
+  \refstepcounter{WiseDocExample}%
+  \setlength\fboxsep{7pt}\setlength\fboxrule{.3pt}%
+  \fcolorbox{WiseBorder}{WiseSoft}{%
+    \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+      {\small\sffamily\bfseries\color{WiseAccent}%
+        \WiseDocText{Example}{示例} \arabic{WiseDocExample}.\enspace #2}\par\smallskip
+      \if\relax\detokenize{#3}\relax\else\WiseDocCode{#3}\fi
+      \WiseDocCode{#4}%
+      \smallskip{\color{WiseBorder}\hrule}\smallskip
+      {\footnotesize\sffamily\color{WiseInk}\WiseDocText{Live result}{实际效果}}\par
+      \begingroup #3%
+        \noindent\hypertarget{live.#1}{}#4\par
+      \endgroup
+    \end{minipage}}%
+  \end{minipage}\par\addvspace{4pt}}
+\newcommand\WiseDocRow[2]{\hypertarget{row.#1}{}#2}
+\newcommand\WiseDocLinkRow[2]{%
+  \begingroup\wiserefsetup{links=#2}%
+    \hypertarget{live.#1}{}\wref[Head~]{picture-a,picture-b}[~Tail]%
+  \endgroup}
+\newcommand\WiseDocLinkPanel{%
+  \par\addvspace{7pt}\noindent\begin{minipage}{\linewidth}%
+  \refstepcounter{WiseDocExample}%
+  \setlength\fboxsep{7pt}\setlength\fboxrule{.3pt}%
+  \fcolorbox{WiseBorder}{WiseSoft}{%
+    \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+      {\small\sffamily\bfseries\color{WiseAccent}%
+        \WiseDocText{Example}{示例} \arabic{WiseDocExample}.\enspace
+        \WiseDocText{Comparing link scopes}{链接范围对照}}\par\smallskip
+      \WiseDocCode{\wref[Head~]{picture-a,picture-b}[~Tail]}%
+      \smallskip{\color{WiseBorder}\hrule}\smallskip
+      \begin{tabular}{@{}ll@{}}
+        {\small\sffamily\WiseDocText{Setting}{设置}} &
+        {\small\sffamily\WiseDocText{Live result}{实际效果}}\\[2pt]
+        \texttt{links=none} & \WiseDocLinkRow{links-none}{none}\\
+        \texttt{links=numbers} & \WiseDocLinkRow{links-numbers}{numbers}\\
+        \texttt{links=numbers-and-affixes} & \WiseDocLinkRow{links-affixes}{numbers-and-affixes}
+      \end{tabular}
+    \end{minipage}}%
+  \end{minipage}\par\addvspace{4pt}}
+\newcommand\WiseDocTargets{%
+  \begin{minipage}{\linewidth}
+    \begin{minipage}[t]{.30\linewidth}\centering
+      \framebox[.9\linewidth]{\rule{0pt}{9mm}\sffamily A}
+      \captionof{figure}{\WiseDocText{System structure}{系统结构}}%
+      \label{structure}\label{picture}\label{picture-a}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{.30\linewidth}\centering
+      \framebox[.9\linewidth]{\rule{0pt}{9mm}\sffamily B}
+      \captionof{figure}{\WiseDocText{Second target}{第二个对象}}\label{picture-b}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{.30\linewidth}\centering
+      \framebox[.9\linewidth]{\rule{0pt}{9mm}\sffamily C}
+      \captionof{figure}{\WiseDocText{Third target}{第三个对象}}\label{picture-c}
+    \end{minipage}
+  \end{minipage}\par\medskip
+  \begin{minipage}[t]{.46\linewidth}\centering
+    \captionof{table}{\WiseDocText{Sample data}{示例数据}}\label{table-a}
+    \begin{tabular}{cc}\toprule A&B\\\midrule 1&2\\\bottomrule\end{tabular}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{.46\linewidth}\raggedright
+    \begingroup\wisereftype{chapter}\setcounter{WiseDocChapter}{1}%
+      \refstepcounter{WiseDocChapter}\label{chapter}%
+      \textbf{\WiseDocText{Chapter-type target}{章类型目标}}\quad\ref{chapter}\par
+    \endgroup
+    \WiseDocText{This article-class manual uses a dedicated counter for the chapter example.}{本手册使用独立计数器演示章类型，正文节编号不受影响。}\par\smallskip
+    \refstepcounter{experiment}\label{exp:first}%
+    \textbf{\WiseDocText{Experiment target}{实验目标}}\quad\ref{exp:first}
+  \end{minipage}\par\medskip
+  \setcounter{equation}{2}%
+  \begin{equation}a=b\label{equation}\end{equation}
+  \begin{equation}c=d\tag{S}\label{live-tag}\end{equation}
+  % Tagged displays do not advance the counter; keep their automatic anchors unique.
+  \setcounter{equation}{4}%
+  \begin{equation}e=f\tag*{S}\label{live-bare}\end{equation}}
+\OnlyDescription
+\begin{document}
+  \DocInput{wiseref.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \title{\textsf{wiseref}\\\WiseDocText{User manual}{用户手册}}
+% \author{\WiseDocText{Junhao Wu}{吴俊豪}}
+% \date{2026/10/10\qquad v1.2026a}
+% \maketitle
+%
+% \section*{\WiseDocText{About wiseref}{用途}}
+% \ifWiseDocEnglish
+% wiseref adds type names to cross-references and formats lists of labels.
+% Instead of writing \texttt{Figure}\verb|~\ref{picture}|, use
+% \verb|\wref{picture}| and configure the wording in one place.
+% Names may appear before or after numbers; number formats and list separators
+% can be set independently.
+% \begin{itemize}
+% \item Types are read from label records, so label names need no special prefixes.
+% \item Omitted prefix/suffix arguments keep the settings; empty arguments clear them.
+% \item Number formatting changes the reference text, not the counter's numbering.
+% \item Lists support grouping, sorting, ranges, and a choice of linked text.
+% \end{itemize}
+% Hyperref's \cs{autoref} adds type names, and cleveref and zref-clever also
+% format reference lists. Wiseref offers a prefix/suffix interface with separate
+% number formats. Special counters may need additional settings or an adapter.
+% Language profiles contain singular and plural names; they do not handle
+% grammatical inflection. The document supplies fonts and text direction.
+% \else
+% wiseref 为交叉引用添加类型名称，也可一次引用多个标签。
+% 例如，把 \verb|图\ref{picture}| 写成 \verb|\wref{picture}|，
+% 再统一设置“图”的名称、编号格式和连接词。名称既可放在编号前，也可放在编号后。
+% \begin{itemize}
+% \item 从标签记录读取类型，标签名无须约定前缀。
+% \item 前后缀参数省略时沿用设置，留空时清除，也可为单次引用另行指定。
+% \item 编号格式只改变引用的显示方式，不改变计数器编号。
+% \item 多标签可分组、排序或压缩为范围，链接范围也可配置。
+% \end{itemize}
+% hyperref 的 \cs{autoref} 能添加类型名，cleveref 和 zref-clever 也能处理引用列表。
+% wiseref 使用前后缀接口，并将编号格式单独设置。
+% 特殊计数器可能需要补充配置或编写适配。
+% 语言预设包含单复数名称，不自动处理语法变格；字体和文字方向由文档设置。
+% \fi
+%
+% \section{\WiseDocText{Installation and first use}{安装与入门}}
+% \ifWiseDocEnglish
+% The package requires LaTeX 2023-06-01 or later and works with LuaLaTeX,
+% XeLaTeX, and pdfLaTeX. Place \texttt{wiseref.sty} beside the main document,
+% or install it in a local TEXMF tree. To extract it from the source, run
+% \texttt{xetex wiseref.ins}. The document supplies its own fonts and math
+% environments; wiseref does not load a CJK backend or amsmath.
+% \else
+% 宏包要求 LaTeX 2023-06-01 或更新版本，支持 LuaLaTeX、XeLaTeX 和 pdfLaTeX。
+% 将 \texttt{wiseref.sty} 放在主文档所在目录，或安装到本地 TEXMF 目录。
+% \par
+% 运行 \texttt{xetex wiseref.ins} 可从源码提取宏包。
+% 字体和数学环境由文档提供，wiseref 不会加载中文排版后端或 amsmath。
+% \fi
+% \ifWiseDocEnglish
+% \begin{lstlisting}
+% \usepackage{amsmath}  % If the document contains math displays
+% \usepackage{wiseref}
+% \usepackage{hyperref} % Optional: load near the end of the package list
+% \end{lstlisting}
+% \else
+% \begin{lstlisting}
+% \usepackage{amsmath}  % 按需加载数学环境
+% \usepackage{wiseref}
+% \usepackage{hyperref} % 可选，通常靠后加载
+% \end{lstlisting}
+% \fi
+% \ifWiseDocEnglish
+% Load hyperref near the end of the package list, subject to any package-specific
+% ordering requirements. Both amsmath and hyperref may be loaded before or after
+% wiseref. The default, \texttt{lang=auto}, follows the current babel
+% or polyglossia language. Without a language manager, a loaded ctex Chinese
+% scheme selects Chinese; otherwise English is the fallback. Existing document
+% names are still inherited. Other Chinese documents may select \texttt{lang=zh};
+% fonts remain the document's responsibility.
+% \else
+% hyperref 通常放在宏包加载列表的靠后位置，并遵循其他宏包的加载顺序要求。
+% amsmath 和 hyperref 均可在 wiseref 之前或之后加载。
+% 默认的 \texttt{lang=auto} 跟随 babel 或 polyglossia 的当前语言。
+% 没有语言管理宏包时，已加载的 ctex 中文 scheme 会选择中文，否则采用英语默认设置；
+% 文档现有的类型名称仍会被继承。其他中文文档可显式设置 \texttt{lang=zh}。
+% 字体仍由文档配置。
+% \fi
+%
+% \ifWiseDocEnglish
+% Use the standard \cs{label} command to mark a target, then refer to it with
+% \cs{wref}:
+% \else
+% 使用标准的 \cs{label} 命令标记对象，再通过 \cs{wref} 引用：
+% \fi
+% \ifWiseDocEnglish
+% \begin{lstlisting}
+% \begin{figure}
+%   \centering
+%   \rule{30mm}{10mm}
+%   \caption{System structure}\label{structure}
+% \end{figure}
+% See \wref{structure}.
+% \end{lstlisting}
+% \else
+% \begin{lstlisting}
+% \begin{figure}
+%   \centering
+%   \rule{30mm}{10mm}
+%   \caption{系统结构}\label{structure}
+% \end{figure}
+% 见\wref{structure}。
+% \end{lstlisting}
+% \fi
+% \ifWiseDocEnglish
+% Compile again after first loading the package or changing labels.
+% Use latexmk, or compile at least twice and check the log for rerun requests.
+% \else
+% 首次加载宏包或修改标签后，需要再次编译。可使用 latexmk，
+% 或至少编译两次，再按日志提示决定是否继续编译。
+% \fi
+% \WiseDocLive{quick}{\WiseDocText{First reference}{第一个引用}}{}{\wref{structure}}
+%
+% \section{\WiseDocText{Reference commands}{引用命令}}
+% \DescribeMacro{\wref}
+% \ifWiseDocEnglish
+% \cs{wref}\oarg{prefix}\marg{label list}\oarg{suffix}.
+% Each optional argument overrides one affix for this call. Omit an argument
+% to keep the configured value; provide an empty argument to remove it.
+% The starred form, \cs{wref*}, produces no links. The standard commands
+% \cs{ref}, \cs{pageref}, and \cs{eqref} retain their usual roles.
+% \else
+% 命令形式为 \cs{wref}\oarg{前缀}\marg{标签列表}\oarg{后缀}。
+% 可选参数只覆盖本次引用的对应前后缀：省略参数时继承设置，显式留空时清除。
+% 星号形式 \cs{wref*} 不生成链接。标准命令 \cs{ref}、\cs{pageref} 和 \cs{eqref}
+% 仍按原来的方式工作。
+% \fi
+%
+% \ifWiseDocEnglish
+% The following results are produced by the commands themselves, using the
+% \hyperlink{manual.targets}{numbered targets at the end of this manual}.
+% \else
+% 下表结果由对应命令实际生成，使用\hyperlink{manual.targets}{本手册末尾的编号对象}。
+% \fi
+% \begin{center}
+% \begin{tabular}{ll}
+% \toprule
+% \WiseDocText{Input}{输入} & \WiseDocText{Live output}{实际输出} \\
+% \midrule
+% \verb|\wref{picture}| & \WiseDocRow{single}{\wref{picture}} \\
+% \verb|\wref{chapter}| & \WiseDocRow{chapter}{\wref{chapter}} \\
+% \verb|\wref{equation}| & \WiseDocRow{equation}{\wref{equation}} \\
+% \verb|\wref[Photo~]{picture}| & \WiseDocRow{prefix}{\wref[Photo~]{picture}} \\
+% \verb|\wref{chapter}[.]| & \WiseDocRow{suffix}{\wref{chapter}[.]} \\
+% \verb|\wref[Part~]{chapter}[!]| & \WiseDocRow{both}{\wref[Part~]{chapter}[!]} \\
+% \verb|\wref[]{chapter}[]| & \WiseDocRow{empty}{\wref[]{chapter}[]} \\
+% \verb|\wref[]{equation}[]| & \WiseDocRow{raw-equation}{\wref[]{equation}[]} \\
+% \verb|\wref*{picture}| & \WiseDocRow{star}{\wref*{picture}} \\
+% \bottomrule
+% \end{tabular}
+% \end{center}
+% \ifWiseDocEnglish
+% Local affixes change reference text, not the target type, caption, or number.
+% Equation parentheses belong to the number format, so clearing both affixes
+% still leaves the parentheses.
+% \else
+% 局部前后缀只改变引用文字，不改变对象类型、图表标题或编号。
+% 公式括号属于编号格式，因此即使清除前后缀，括号仍然保留。
+% \fi
+%
+% \subsection{\WiseDocText{Multiple and mixed references}{多标签与混合引用}}
+% \ifWiseDocEnglish
+% Separate labels with commas. Input order is preserved by default, and
+% adjacent targets of the same type form a group:
+% \else
+% 标签之间用逗号分隔。默认保留输入顺序，相邻的同类型对象合为一组：
+% \fi
+% \begin{lstlisting}
+% \wref{picture-a,picture-b,table-a,equation}
+% \end{lstlisting}
+% \ifWiseDocEnglish
+% The result appears below. A figure--table--figure input remains three groups
+% unless sorting is enabled.
+% Explicit local affixes apply to every group in the call. To change only one
+% type in a mixed list, use that type's configuration instead.
+% \else
+% 输出见下方示例。未启用排序时，“图、表、图”的输入仍分为三组。
+% 本次调用指定的前后缀用于每一组；只需修改其中某种类型时，设置该类型的配置项。
+% \fi
+% \WiseDocLive{mixed}{\WiseDocText{Mixed reference list}{混合引用列表}}{}{\wref{picture-a,picture-b,table-a,equation}}
+%
+% \ifWiseDocEnglish
+% Affixes surround the group; the number format applies to each number.
+% Thus equations can be printed as ``Equations (1) and (2)'', with parentheses
+% around each number. Each number links to its own target. Connectors are not linked.
+% \else
+% 前后缀加在整组引用的两端，编号格式分别用于每个编号。
+% 例如公式组可以显示为“式(1)、(2)”，每个编号都有括号。
+% 各编号分别链接到自己的对象，连接词不带链接。
+% \fi
+%
+% \section{\WiseDocText{Configuration}{配置}}
+% \DescribeMacro{\wiserefsetup}
+% \ifWiseDocEnglish
+% \cs{wiserefsetup}\marg{key--value list} configures subsequent references.
+% Unspecified values remain unchanged, later settings replace earlier ones,
+% and changes made inside a TeX group remain local to that group.
+% \else
+% \cs{wiserefsetup}\marg{键值列表} 设置后续引用。
+% 未指定的值保持不变，后面的设置替换前面的同名设置。
+% 在 TeX 分组内修改时，设置只在该分组内生效。
+% \fi
+% \ifWiseDocEnglish
+% Settings are passed to \cs{wiserefsetup} after loading the package, not as
+% \cs{usepackage} options. Enclose values containing commas in braces.
+% \else
+% 设置应在加载宏包后通过 \cs{wiserefsetup} 传入，不作为 \cs{usepackage} 选项。
+% 前后缀或连接词中含有逗号时，请用花括号包住整个值。
+% \fi
+% \ifWiseDocEnglish
+% \begin{lstlisting}
+% \wiserefsetup{
+%   lang=en,
+%   figure={prefix={Photo~},suffix={}},
+%   equation={prefix={Eq.~},suffix={},number-format={\textup{(#1)}}},
+% }
+% \end{lstlisting}
+% \else
+% \begin{lstlisting}
+% \wiserefsetup{
+%   lang=zh,
+%   figure={prefix={照片},suffix={}},
+%   equation={prefix={式},suffix={},number-format={\textup{(#1)}}},
+% }
+% \end{lstlisting}
+% \fi
+% \ifWiseDocEnglish
+% Built-in profiles cover English (\texttt{en}), Chinese (\texttt{zh}),
+% French (\texttt{fr}), German (\texttt{de}), Spanish (\texttt{es}),
+% Portuguese (\texttt{pt}), Italian (\texttt{it}), Dutch (\texttt{nl}),
+% Russian (\texttt{ru}), Greek (\texttt{el}), Japanese (\texttt{ja}),
+% and Arabic (\texttt{ar}). Full language names are also accepted.
+% Changing \texttt{lang} does not erase explicit settings.
+% Profiles supply defaults at each reference call; user settings take precedence.
+% These profiles provide standalone names and singular/plural forms, not
+% automatic grammatical case or Arabic dual inflection. Override affixes for
+% another grammatical context. Fonts, script support, and text direction are
+% supplied by the document.
+% \else
+% 内置语言预设包括英语（\texttt{en}）、中文（\texttt{zh}）、法语（\texttt{fr}）、
+% 德语（\texttt{de}）、西班牙语（\texttt{es}）、葡萄牙语（\texttt{pt}）、
+% 意大利语（\texttt{it}）、荷兰语（\texttt{nl}）、俄语（\texttt{ru}）、
+% 希腊语（\texttt{el}）、日语（\texttt{ja}）和阿拉伯语（\texttt{ar}），也接受完整语言名。
+% 修改 \texttt{lang} 不会清除显式设置。每次引用读取当前预设，用户设置优先。
+% 预设不自动处理语法格或阿拉伯语双数；需要这些形式时，直接设置前后缀。
+% 相应字体和文字方向由文档提供。
+% \fi
+% \WiseDocLive{french}{\WiseDocText{Selecting a built-in language}{选择内置语言}}{\wiserefsetup{lang=fr}}{\wref{picture-a,picture-b,table-a}}
+%
+% \subsection{\WiseDocText{Following the document}{跟随文档语言}}
+% \ifWiseDocEnglish
+% Auto mode resolves the profile at each reference and respects local language
+% switches. Document names, including \cs{figurename} and \cs{tablename}, are
+% read when needed. Chapters, appendices, and custom types also use available
+% name or autoref-name commands. Names are not frozen when the package loads.
+% \else
+% 自动模式在每次引用时选择语言，支持局部语言切换。
+% \cs{figurename}、\cs{tablename} 等文档名称在使用时读取；
+% 章、附录和自定义类型也会使用可用的名称命令或 autoref 名称命令。
+% 名称不会在宏包加载时固定下来。
+% \fi
+%
+% \ifWiseDocEnglish
+% Unlocalized English defaults do not replace a different language profile.
+% If an inherited name differs from the profile's known singular form, its plural
+% is not guessed: use \texttt{prefix-plural} or \texttt{suffix-plural} if needed.
+% The per-type switch \texttt{use-document-name=true} enables document names
+% in auto mode; \texttt{false} keeps the profile's affixes instead.
+% It defaults to \texttt{true} and does not affect explicit \texttt{lang} selections.
+% Explicit affixes always take precedence, including empty values.
+% English names normally form a prefix; Chinese and Japanese chapter/section
+% names form a suffix. To place a name elsewhere, set \texttt{prefix} and
+% \texttt{suffix} directly, as in the example below.
+% \else
+% 文档名称仍为英语默认值时，不会覆盖其他语言的预设名称。
+% 继承的名称与预设的单数名称不同时，宏包不会猜测其复数形式，
+% 必要时请设置 \texttt{prefix-plural} 或 \texttt{suffix-plural}。
+% 类型选项 \texttt{use-document-name=true} 表示在自动模式中使用文档名称；
+% 设为 \texttt{false} 时沿用语言预设的前后缀。默认值为 \texttt{true}，
+% 显式选择 \texttt{lang} 时不受此开关影响。
+% 用户指定的前后缀始终优先，留空也算指定。
+% 英语名称通常放在编号前，中文和日语的“章”“节”放在编号后。
+% 需要其他位置时，直接设置 \texttt{prefix}、\texttt{suffix}，例如：
+% \fi
+% \WiseDocLive{suffix-name}{\WiseDocText{Putting the figure name after the number}{把图名放在编号后}}{\wiserefsetup{figure={prefix={},suffix={~\figurename}}}}{\wref{picture}}
+% \ifWiseDocEnglish
+% This keeps the current \cs{figurename}; the document's language switches or
+% later redefinitions still apply. Set \texttt{suffix-plural} separately if needed.
+% To print just the number, clear both affixes or use \verb|\wref[]{picture}[]|.
+% Turning off document names alone does not remove the profile's names.
+% \else
+% 这里直接使用当前的 \cs{figurename}，后续改名或语言切换仍会生效。
+% 需要不同的复数形式时，另设 \texttt{suffix-plural}。
+% 只显示编号时，清空两侧前后缀，或使用 \verb|\wref[]{picture}[]|；
+% 关闭文档名称本身不会清除语言预设的名称。
+% \fi
+%
+% \ifWiseDocEnglish
+% With ctex's default \texttt{scheme=chinese}, auto mode selects Chinese without
+% loading a language manager. This works with ctex classes and the ctex package,
+% including loading ctex after wiseref. Detection uses LaTeX's loaded-file
+% information for the Chinese scheme, not private ctex variables or caption text.
+% \texttt{scheme=plain} alone retains the English fallback. Babel or polyglossia
+% takes precedence, and explicit \texttt{lang} selection takes precedence over both.
+% Changing caption names does not change the detected language.
+% When none of these sources is available, auto mode uses the English fallback.
+% An unregistered
+% language reported by a language manager produces a warning and the fallback.
+% An explicitly selected unregistered profile produces an error.
+% \else
+% 使用 ctex 默认的 \texttt{scheme=chinese} 时，自动模式选择中文。
+% ctex 文档类和 ctex 宏包均可，ctex 也可在 wiseref 之后加载。
+% 宏包通过 LaTeX 的已加载文件列表判断中文 scheme，不读取 ctex 私有变量，也不根据图表名称猜测。
+% 单独使用 \texttt{scheme=plain} 时采用英语默认设置。
+% babel 或 polyglossia 的语言优先于 ctex scheme，显式 \texttt{lang} 又优先于两者。
+% 修改图表名称不会改变检测出的语言。没有这些语言信息时，自动模式采用英语默认设置。
+% 语言管理宏包选用了未注册的语言时，wiseref 给出警告并改用英语；
+% 显式选择未注册语言时则报错。
+% \fi
+%
+% \subsection{\WiseDocText{Adding or updating a language profile}{新增或更新语言预设}}
+% \ifWiseDocEnglish
+% Register profiles with \texttt{langs} and optional aliases with
+% \texttt{lang-aliases}. Profile names and aliases are ASCII identifiers;
+% \texttt{auto} is reserved. Names are case-insensitive and start with an ASCII
+% letter; following characters may be ASCII letters, digits, hyphens, or underscores.
+% Partial profiles inherit unspecified English values.
+% Updating an existing profile preserves its unspecified values.
+% \else
+% 通过 \texttt{langs} 注册语言预设，可用 \texttt{lang-aliases} 添加别名。
+% 语言名和别名不区分大小写，须以 ASCII 字母开头，后续可用 ASCII 字母、数字、连字符或下划线；
+% \texttt{auto} 为保留值。
+% 新预设中未指定的设置采用英语默认值；更新已有预设时，未指定的设置保持不变。
+% \fi
+% \begin{lstlisting}
+% \wiserefsetup{
+%   langs={french={
+%     figure={prefix={Figure~},prefix-plural={Figures~}},
+%     table={prefix={Tableau~},prefix-plural={Tableaux~}},
+%     number-last-separator={~et~},group-last-separator={~et~},
+%   }},
+%   lang-aliases={fr=french},
+%   lang=auto,
+% }
+% \end{lstlisting}
+% \ifWiseDocEnglish
+% This example updates the built-in French profile, preserving its other fields.
+% With babel or polyglossia, selecting French selects the updated profile.
+% \texttt{lang=fr} selects it explicitly, regardless of the document language.
+% Profile declarations, aliases, and ordinary settings all respect TeX grouping.
+% Aliases may refer to later declarations, but cycles are rejected.
+% Profile declarations accept type formats and connectors, not sorting or link options.
+% \else
+% 上例修改内置法语预设，保留其他字段。babel 或 polyglossia 选择法语后会使用修改后的预设；
+% \texttt{lang=fr} 则显式选择法语，不受文档当前语言影响。
+% 预设声明、别名和普通设置均遵循 TeX 分组。别名可以指向随后声明的语言，但不允许循环。
+% 预设声明只接受类型格式和连接词，不接受排序或链接选项。
+% \fi
+%
+% \ifWiseDocEnglish
+% The precedence is: per-call affixes, explicit setup values, inherited document
+% names in auto mode, the selected profile, then the English fallback.
+% Explicit language selection uses profile names rather than document-name inheritance.
+% A class may provide an expandable language selector, such as
+% \texttt{lang=\{\textbackslash DocumentLang\}}, without replacing user formats.
+% \else
+% 格式优先级由高到低为：本次调用的前后缀、显式设置、自动模式继承的文档名称、
+% 所选语言预设、英语默认值。显式选择语言时使用预设名称，不继承文档名称。
+% 文档类可以提供可展开的语言选择器，例如 \texttt{lang=\{\textbackslash DocumentLang\}}，
+% 同时保留用户的格式设置。
+% \fi
+%
+% \subsection{\WiseDocText{Type-specific settings}{类型设置}}
+% \ifWiseDocEnglish
+% Type names identify the numbered object. The following types have built-in
+% default names and formats; further types can be configured as described below.
+% \else
+% 类型名表示被引用对象的种类。下列类型已有默认名称和格式，其他类型也可自行配置。
+% \fi
+% \begin{center}
+% \begin{tabular}{ll}
+% \toprule
+% \WiseDocText{Objects}{对象} & \WiseDocText{Built-in type identifiers}{内置类型标识} \\
+% \midrule
+% \WiseDocText{Figures}{图与子图} & \texttt{figure, subfigure} \\
+% \WiseDocText{Tables}{表与子表} & \texttt{table, subtable} \\
+% \WiseDocText{Equations}{公式} & \texttt{equation} \\
+% \WiseDocText{Headings}{章与节} & \texttt{chapter, section, subsection, subsubsection} \\
+% \WiseDocText{Appendices}{附录} & \texttt{appendix} \\
+% \WiseDocText{Statements}{定理类} & \texttt{theorem, lemma, definition, proposition, corollary} \\
+% \WiseDocText{List items}{列表条目} & \texttt{enumi, enumii} \\
+% \WiseDocText{Footnotes}{脚注} & \texttt{footnote} \\
+% \bottomrule
+% \end{tabular}
+% \end{center}
+% \WiseDocText{Each type accepts the following settings:}{每种类型接受以下设置：}
+% \begin{description}
+% \item[\texttt{prefix}, \texttt{suffix}] \WiseDocText{Text before and after a reference group.}{引用组前后的文字。}
+% \item[\texttt{prefix-plural}, \texttt{suffix-plural}] \ifWiseDocEnglish Affixes for groups with
+% multiple targets. If absent, the singular value is used. Setting a singular
+% affix also sets its plural to the same value; set a different plural afterwards if needed.
+% \else 多个对象合组时使用的前后缀。未指定时使用单数值。
+% 设置单数前后缀会同时把对应复数值设为相同文字；需要不同复数形式时，在其后指定。
+% \fi
+% \item[\texttt{number-format}] \ifWiseDocEnglish The display format of each number. The placeholder
+% \texttt{\#1} is the raw number stored by the label.
+% It is not a label key: formatting does not change counters or numbering rules.
+% For raw number \texttt{2-3}, \verb|number-format={#1}| gives \texttt{2-3},
+% while \verb|number-format={\textup{(#1)}}| gives \texttt{(2-3)}.
+% Recorded bare tags, such as amsmath's \verb|\tag*|, bypass this number format;
+% their prefix and suffix settings still apply.
+% \else 各编号的显示格式。占位符 \texttt{\#1} 表示标签保存的原始编号，不是标签名。
+% 设置格式不会改变计数器或编号规则。
+% 原始编号为 \texttt{2-3} 时，\verb|number-format={#1}| 显示 \texttt{2-3}，
+% \verb|number-format={\textup{(#1)}}| 显示 \texttt{(2-3)}。
+% 记录为 \texttt{bare} 的标记（如 amsmath 的 \verb|\tag*|）不套用此编号格式，
+% 但前后缀设置仍生效。
+% \fi
+% \item[\texttt{use-document-name}] \ifWiseDocEnglish
+% \texttt{true} (default) or \texttt{false}. Controls use of the document's
+% type name in \texttt{lang=auto}. The profile's affixes remain when disabled,
+% and explicit \texttt{prefix}/\texttt{suffix} settings take precedence.
+% \else
+% 接受 \texttt{true}（默认）或 \texttt{false}，控制 \texttt{lang=auto}
+% 是否使用文档提供的类型名称。关闭时保留语言预设的前后缀；
+% 显式设置的 \texttt{prefix}、\texttt{suffix} 始终优先。
+% \fi
+% \end{description}
+% \ifWiseDocEnglish
+% When placing a number-format setting inside another macro definition, write
+% \texttt{\#\#1} there so the stored format receives \texttt{\#1}, following
+% ordinary TeX parameter escaping.
+% \else
+% 若把 \texttt{number-format} 设置放在另一条宏定义中，须写 \texttt{\#\#1}，
+% 使保存的格式得到 \texttt{\#1}；这是通常的 TeX 参数转义规则。
+% \fi
+% \WiseDocLive{format}{\WiseDocText{Changing only the displayed number}{只改变编号显示格式}}{\wiserefsetup{equation={number-format={\textup{[#1]}}}}}{\wref{equation}}
+% \ifWiseDocEnglish
+% \begin{lstlisting}
+% \wiserefsetup{
+%   figure={prefix={Figure~},prefix-plural={Figures~},suffix={}},
+%   chapter={prefix={Chapter~},suffix={},number-format={#1}},
+% }
+% \end{lstlisting}
+% \else
+% \begin{lstlisting}
+% \wiserefsetup{
+%   figure={prefix={图},prefix-plural={图},suffix={}},
+%   chapter={prefix={第},suffix={章},number-format={#1}},
+% }
+% \end{lstlisting}
+% \fi
+% \ifWiseDocEnglish
+% Type names usually follow LaTeX counter names, such as \texttt{figure} and
+% \texttt{chapter}; they are identifiers, not the printed names or label prefixes.
+% Match the recorded identifier exactly; type names are case-sensitive.
+% Appendix and theorem adapters can record a more specific type than the backing
+% counter. Formats are open to additional recorded types, provided their names
+% do not conflict with general options such as \texttt{lang} and \texttt{links}.
+% Registering a format does not reclassify existing labels.
+% \else
+% 类型名通常沿用 LaTeX 计数器名，例如 \texttt{figure}、\texttt{chapter}，
+% 它们是内部标识，不是输出文字或标签名前缀；类型名区分大小写，应与记录的标识一致。
+% 附录、定理等适配可记录比底层计数器更具体的类型。
+% 也可配置其他已记录的类型，但名称应避开 \texttt{lang}、\texttt{links} 等通用选项。
+% 仅注册显示格式不会改变已有标签的类型。
+% \fi
+%
+% \subsubsection{\WiseDocText{Counters supplied by other packages}{第三方宏包的计数器}}
+% \ifWiseDocEnglish
+% Packages using the standard reference mechanism usually work directly:
+% \cs{refstepcounter} establishes a target number, then \cs{label} records it.
+% Reading the type does not imply a built-in translated name. In auto mode,
+% available document names can be inherited; otherwise configure the type's affixes.
+% Common identifiers include:
+% \else
+% 使用标准引用机制的宏包通常可直接配合：\cs{refstepcounter} 建立引用目标，
+% 再由 \cs{label} 记录编号和类型。读到类型后，自动模式会尝试使用文档提供的名称。
+% 没有可用名称或内置预设时，需自行设置该类型的前后缀。
+% 常见标识如下：
+% \fi
+% \begin{center}
+% \begin{tabular}{ll}
+% \toprule
+% \WiseDocText{Provider or object}{宏包或对象} & \WiseDocText{Type identifier}{类型标识} \\
+% \midrule
+% listings & \texttt{lstlisting} \\
+% \WiseDocText{minted listing float}{minted 代码浮动体} & \texttt{listing} \\
+% algorithm & \texttt{algorithm} \\
+% algorithm2e & \texttt{algocf} \\
+% \WiseDocText{tcolorbox theorem}{tcolorbox 定理框} & \texttt{tcb@cnt@}\WiseDocText{\meta{environment}}{\meta{环境名}} \\
+% \bottomrule
+% \end{tabular}
+% \end{center}
+% \ifWiseDocEnglish
+% These names depend on the provider's counter declarations. For custom environments
+% or nonstandard label mechanisms, use \cs{wisereftype} or a suitable adapter;
+% simply creating a counter or stepping it with \cs{stepcounter} is insufficient.
+% A custom counter can be referenced as follows:
+% \begin{lstlisting}
+% \newcounter{experiment}
+% \wiserefsetup{experiment={prefix={Experiment~},suffix={}}}
+% \refstepcounter{experiment}\label{exp:first}
+% See \wref{exp:first}.
+% \end{lstlisting}
+% \else
+% 类型名取决于相应宏包的计数器声明。特殊环境或非标准标签机制可使用
+% \cs{wisereftype} 或另写适配；只创建计数器，或仅用 \cs{stepcounter} 增加数值，不能建立引用目标。
+% 自定义计数器可以这样使用：
+% \begin{lstlisting}
+% \newcounter{experiment}
+% \wiserefsetup{experiment={prefix={实验},suffix={}}}
+% \refstepcounter{experiment}\label{exp:first}
+% 见\wref{exp:first}。
+% \end{lstlisting}
+% \fi
+% \ifWiseDocEnglish
+% To check the recorded type, inspect the auxiliary file after compilation.
+% The middle field in this record is the configuration identifier:
+% \else
+% 不确定类型名时，可在编译后查看辅助文件。下方记录的中间字段就是配置标识：
+% \fi
+% \begin{lstlisting}
+% \wiserefRecord{exp:first}{experiment}{normal}
+% \end{lstlisting}
+% \ifWiseDocEnglish
+% This is generated auxiliary data, not a format-setting command. The last field
+% distinguishes ordinary numbers (\texttt{normal}), tags (\texttt{tag}), and
+% unparenthesized tags (\texttt{bare}). Use \cs{wiserefsetup} and \cs{wisereftype}
+% for user configuration.
+% \else
+% 这条命令由宏包写入辅助文件，无须手动填写。最后一个字段区分普通编号（\texttt{normal}）、
+% 自定义标记（\texttt{tag}）和不加括号的标记（\texttt{bare}）。用户配置使用
+% \cs{wiserefsetup} 和 \cs{wisereftype}。
+% \fi
+% \ifWiseDocEnglish
+% \WiseDocLive{counter}{Custom counter}{\wiserefsetup{experiment={prefix={Experiment~},suffix={}}}}{\wref{exp:first}}
+% \else
+% \WiseDocLive{counter}{自定义计数器}{\wiserefsetup{experiment={prefix={实验},suffix={}}}}{\wref{exp:first}}
+% \fi
+%
+% \subsection{\WiseDocText{General options}{通用选项}}
+% \begin{center}
+% \begin{tabular}{lll}
+% \toprule
+% \WiseDocText{Option}{选项} & \WiseDocText{Default}{默认值} & \WiseDocText{Purpose}{用途} \\
+% \midrule
+% \texttt{lang} & \texttt{auto} & \WiseDocText{Document language or an explicit profile}{文档语言或显式语言预设} \\
+% \texttt{sort} & \texttt{false} & \WiseDocText{Group types and sort numbers}{按类型分组并排序编号} \\
+% \texttt{compress} & \texttt{false} & \WiseDocText{Compress consecutive numeric labels}{压缩连续数字编号} \\
+% \texttt{links} & \shortstack[l]{\texttt{numbers-and-}\\\texttt{affixes}} & \WiseDocText{Choose which text is linked}{选择哪些文字带链接} \\
+% \bottomrule
+% \end{tabular}
+% \end{center}
+% \ifWiseDocEnglish
+% \texttt{links} accepts \texttt{none}, \texttt{numbers}, or \texttt{numbers-and-affixes}.
+% \texttt{none} suppresses all links; \texttt{numbers} links only numbers.
+% The default, \texttt{numbers-and-affixes}, also links the prefix to the first
+% target and the suffix to the last target. Connectors remain unlinked.
+% Without hyperref, all modes produce plain text. \cs{wref*} suppresses links
+% for that call without changing the configured mode.
+% \else
+% \texttt{links} 接受 \texttt{none}、\texttt{numbers} 和 \texttt{numbers-and-affixes}。
+% \texttt{none} 关闭全部链接；\texttt{numbers} 只给编号添加链接。
+% 默认的 \texttt{numbers-and-affixes} 还把前缀链接到首个对象、后缀链接到末个对象，连接词不带链接。
+% 没有 hyperref 时，所有模式都只生成普通文字。\cs{wref*} 只关闭本次调用的链接，不改变配置的模式。
+% \fi
+% \WiseDocText{Blue text in these live examples is clickable; the links lead to the demonstration targets.}{下方实际效果中的蓝色文字可点击，链接指向示例对象。}
+% \WiseDocLinkPanel
+%
+% \ifWiseDocEnglish
+% Connectors are configurable: \texttt{number-separator} and
+% \texttt{number-last-separator} separate numbers within a group;
+% \texttt{group-separator} and \texttt{group-last-separator} separate groups;
+% \texttt{range-separator} separates range endpoints. English defaults are
+% comma--space, space--\texttt{and}--space, comma--space,
+% space--\texttt{and}--space, and an en dash, respectively.
+% \texttt{name-separator} supplies the gap between an inherited prefix name and
+% its number: a nonbreaking space in English, and no added gap in Chinese.
+% \else
+% 组内编号用 \texttt{number-separator} 和 \texttt{number-last-separator} 分隔；
+% 不同引用组用 \texttt{group-separator} 和 \texttt{group-last-separator} 分隔。
+% \texttt{range-separator} 分隔范围两端。英语默认依次为逗号加空格、空格加 \texttt{and}
+% 加空格、逗号加空格、空格加 \texttt{and} 加空格，以及连接号（en dash）。
+% \texttt{name-separator} 控制继承的前缀名称与编号之间的间距：英语使用不换行空格，中文不额外加空格。
+% \fi
+% \ifWiseDocEnglish
+% Connector settings respect grouping and survive language changes like other
+% explicit settings. An empty value removes that connector; for example:
+% \else
+% 连接词设置也遵循分组，切换语言不会清除已设置的值。留空可去掉相应连接词，例如：
+% \fi
+% \ifWiseDocEnglish
+% \begin{lstlisting}
+% \wiserefsetup{
+%   number-separator={,~}, number-last-separator={~and~},
+%   group-separator={;~}, group-last-separator={;~},
+%   range-separator={--}, name-separator={},
+% }
+% \end{lstlisting}
+% \else
+% \begin{lstlisting}
+% \wiserefsetup{
+%   number-separator={、}, number-last-separator={和},
+%   group-separator={；}, group-last-separator={；},
+%   range-separator={至}, name-separator={},
+% }
+% \end{lstlisting}
+% \fi
+%
+% \subsection{\WiseDocText{Sorting and ranges}{排序与范围}}
+% \ifWiseDocEnglish
+% With \texttt{sort=true}, types follow their first occurrence in the input.
+% Numeric labels of the same type and with the same number prefix are sorted
+% in ascending order. With \texttt{compress=true}, a run of at least three
+% consecutive numeric labels becomes a range. Two labels are not compressed,
+% and compression alone does not sort reversed input.
+% \else
+% \texttt{sort=true} 时，类型组按首次出现的顺序排列，
+% 同类型且编号前缀相同的数字编号按数值升序排列。
+% \texttt{compress=true} 会把至少三个连续数字编号压缩为范围，两个编号不会压缩。
+% 单独开启压缩不会对倒序输入进行排序。
+% \fi
+% \begin{lstlisting}
+% \wiserefsetup{sort=true,compress=true}
+% \wref{picture-c,picture-a,picture-b}
+% \end{lstlisting}
+% \WiseDocLive{range}{\WiseDocText{Sorting and compressing a range}{排序与范围压缩}}{\wiserefsetup{sort=true,compress=true}}{\wref{picture-c,picture-a,picture-b}}
+% \ifWiseDocEnglish
+% Both endpoints link to their figures. Custom equation tags, alphabetic sublabels, and differing
+% number prefixes are not compressed as ordinary numeric ranges.
+% \else
+% 范围两端分别链接到对应的图。
+% 自定义公式标记、字母子编号和编号前缀不同的对象，不会作为普通数字范围压缩。
+% \fi
+% \WiseDocText{Repeated labels are retained; no automatic deduplication is performed.}{重复标签会保留，不会自动去重。}
+%
+% \section{\WiseDocText{Numbering and compatibility}{编号与兼容性}}
+% \ifWiseDocEnglish
+% wiseref records type information alongside standard labels. It does not infer
+% a type from a label's spelling. Appendices are identified through \cs{appendix}.
+% The current LaTeX kernel and amsthm preserve separate types for theorems and
+% lemmas sharing a counter. Subfigure numbers and destinations follow the
+% settings of subcaption or the corresponding provider; wiseref creates no
+% extra float anchors.
+% \else
+% wiseref 在标准标签旁记录类型信息，不会根据标签名称推断类型。
+% 通过 \cs{appendix} 识别附录。当前 LaTeX 内核和 amsthm 能为共享计数器的定理、引理保留不同类型。
+% 子图编号和链接目标跟随 subcaption 或相应提供方，wiseref 不会额外创建浮动体锚点。
+% \fi
+%
+% \ifWiseDocEnglish
+% Unicode-math has been tested with LuaLaTeX and XeLaTeX using Latin Modern Math
+% and TeX Gyre Termes Math. With mathtools' \texttt{showonlyrefs}, wref marks
+% referenced equations through the public \cs{noeqref} interface; recompile until
+% the numbers settle. Coexistence tests also cover cleveref, varioref, zref-clever,
+% caption/subcaption, subfig, enumitem, listings, longtable, algorithm packages,
+% biblatex/Biber, minted highlighting, and numbered theorem boxes.
+% Extra counters such as \texttt{lstlisting}, \texttt{algorithm}, and \texttt{algocf}
+% need their own type formats. Zref labels alone do not replace standard labels.
+% \else
+% unicode-math 的测试使用 Latin Modern Math 和 TeX Gyre Termes Math，
+% 分别用 LuaLaTeX 和 XeLaTeX 编译。使用 mathtools 的 \texttt{showonlyrefs} 时，
+% \cs{wref} 通过公开命令 \cs{noeqref} 标记被引用公式；需重新编译，直到编号稳定。
+% 还测试了与 cleveref、varioref、zref-clever、caption/subcaption、subfig、enumitem、
+% listings、longtable、算法宏包、biblatex/Biber、minted 高亮和编号定理框的配合。
+% \texttt{lstlisting}、\texttt{algorithm}、\texttt{algocf}
+% 等额外计数器需要配置类型格式。只使用 zref 标签不能替代标准标签。
+% \fi
+%
+% \ifWiseDocEnglish
+% Ntheorem environments are recognized automatically, including shared counters,
+% nested labels, and unnumbered styles. Optional titles do not replace type names.
+% With a LaTeX record-property interface and a supporting xr/xr-hyper version,
+% external types and tag modes are imported automatically. The source document
+% must load the current wiseref and be recompiled; missing type records retain
+% standard number-only fallback. Different PDFs are never compressed into one range.
+% \else
+% ntheorem 环境可自动识别，包括共享计数器、嵌套标签和无编号样式；可选标题不会替代类型名。
+% 导入外部类型和公式标记格式，需要提供记录属性接口的 LaTeX 内核，以及支持该接口的 xr/xr-hyper。
+% 源文档须加载当前版本的 wiseref 并重新编译；没有类型记录时，只显示标准引用的编号。
+% 不同 PDF 的编号不会被压缩为一个范围。
+% \fi
+% \ifWiseDocEnglish
+% For an external file \texttt{other.tex} whose label is \texttt{result}, compile
+% that file with wiseref first. A main-document example is:
+% \else
+% 外部文件 \texttt{other.tex} 的标签若为 \texttt{result}，先加载 wiseref 编译该文件，
+% 主文档可以这样引用：
+% \fi
+% \begin{lstlisting}
+% \usepackage{xr-hyper}
+% \externaldocument[other-]{other}
+% \usepackage{wiseref}
+% \usepackage{hyperref}
+%
+% \wref{other-result}
+% \end{lstlisting}
+% \ifWiseDocEnglish
+% The first four lines belong in the preamble and the wref call in the document body.
+% The prefix affects label identifiers, not the source numbering. Recompile the
+% source after changing its labels and the main document after updating its aux file.
+% \else
+% 前四行放在导言区，wref 调用放在正文。前缀只改变导入的标签标识，不改变源编号。
+% 源标签变化后应重新编译源文件，
+% 更新辅助文件后再编译主文档。
+% \fi
+%
+% \ifWiseDocEnglish
+% On the tested 2026 kernel, thmtools siblings need the named first-aid hook
+% removed before loading amsthm, as below. Wiseref does not disable it globally.
+% Basic tagged-PDF references passed. The comprehensive tagging test fails even
+% without wiseref, so full tagged-PDF compatibility has not been established.
+% Tested versions and configurations are listed in \texttt{test/PACKAGE-COMPATIBILITY.md}.
+% \else
+% 在测试所用的 2026 内核中，thmtools 的共享计数器需在加载 amsthm 前移除下方的 first-aid 钩子。
+% wiseref 不会自行移除它。tagged PDF 的基础引用测试通过；
+% 综合测试在未加载 wiseref 时已报错，因此尚不能确认完整的 tagged PDF 兼容性。
+% 版本和测试配置见 \texttt{test/PACKAGE-COMPATIBILITY.md}。
+% \fi
+% \begin{lstlisting}
+% \RemoveFromHook{package/amsthm/after}[firstaid/aliascounter]
+% \usepackage{amsthm,thmtools}
+% \end{lstlisting}
+%
+% \ifWiseDocEnglish
+% With amsmath, \verb|\tag{S}| is referenced as ``Equation (S)'', while
+% \verb|\tag*{S}| is referenced as ``Equation S''. Classes that change label
+% or equation-tag implementations may require an adapter.
+% Auto mode skips name formatters that require arguments and borrowed autoref-name
+% macros containing undefined commands, with a warning.
+% Multiple-appendix commands such as IEEEtran's \cs{appendices} are also recognized.
+% \else
+% 使用 amsmath 时，\verb|\tag{S}| 引用为“Equation (S)”或“式(S)”，
+% \verb|\tag*{S}| 则引用为“Equation S”或“式S”。
+% 改写标签或公式标记实现的文档类可能需要适配。
+% 自动模式会跳过需要参数的名称格式命令，以及含有未定义命令的 autoref 名称，并给出警告。
+% IEEEtran 的 \cs{appendices} 等多附录命令也能识别。
+% \fi
+% \WiseDocLive{tag}{\WiseDocText{A custom equation tag}{自定义公式标记}}{}{\wref{live-tag}}
+% \WiseDocLive{bare}{\WiseDocText{An unparenthesized equation tag}{不加括号的公式标记}}{}{\wref{live-bare}}
+%
+% \DescribeMacro{\wisereftype}
+% \ifWiseDocEnglish
+% Use \cs{wisereftype}\marg{type} inside a custom environment's group:
+% \else
+% 在自定义环境的分组内使用 \cs{wisereftype}\marg{类型}，例如：
+% \fi
+% \begin{lstlisting}
+% \AddToHook{env/mytheorem/begin}{\wisereftype{theorem}}
+% \end{lstlisting}
+% \ifWiseDocEnglish
+% The override applies to subsequent labels in the current TeX group and ends
+% with that group; it is not a next-label-only setting. \verb|\wisereftype{}|
+% restores automatic selection within the group. It does not create a number or
+% link destination: the environment still needs a valid standard reference target.
+% \else
+% 该设置影响当前 TeX 分组内此后的所有标签，分组结束时恢复。
+% \par
+% \verb|\wisereftype{}| 可在本组内恢复自动选择。它不建立编号或链接目标，
+% 环境仍须提供有效的标准引用目标。
+% \fi
+%
+% \ifWiseDocEnglish
+% In headings that also produce PDF bookmarks, supply plain bookmark text with
+% hyperref's \cs{texorpdfstring} if the formatted reference cannot be expanded there:
+% \begin{lstlisting}
+% \section{\texorpdfstring{See \wref{structure}}{System structure}}
+% \end{lstlisting}
+% \else
+% 标题同时生成 PDF 书签时，若格式化引用不能在书签中展开，可用 hyperref 的
+% \cs{texorpdfstring} 提供纯文字书签：
+% \begin{lstlisting}
+% \section{\texorpdfstring{见\wref{structure}}{系统结构}}
+% \end{lstlisting}
+% \fi
+% \ifWiseDocEnglish
+% An unconfigured type falls back to the number with a warning. An undefined
+% label prints \texttt{??}. An unnumbered target falls back to the standard
+% reference with a warning rather than being treated as a new numbered target.
+% Existing auxiliary records remain readable if the package is removed.
+% \else
+% 未配置格式的类型会给出警告并只显示编号；未定义标签显示 \texttt{??}。
+% 无编号对象会给出警告并退回标准引用，不会被当作新的编号对象。
+% 移除宏包后，已有辅助文件中的记录仍可读取。
+% \fi
+%
+% \paragraph{\WiseDocText{Maintenance and license}{维护与许可证}}
+% \WiseDocText{Maintainer: Junhao Wu.}{维护者：吴俊豪（Junhao Wu）。}
+% \href{mailto:andrew.junhao.wu@gmail.com}{\nolinkurl{andrew.junhao.wu@gmail.com}}\par
+% \WiseDocText{Source and issue tracker:}{源码及问题反馈：}
+% \url{https://github.com/hithesis/wiseref}\par
+% \WiseDocText{Copyright 2026 Junhao Wu. Distributed under the LaTeX Project Public License, version 1.3c or later.}{版权所有 2026 Junhao Wu。按 LaTeX Project Public License 1.3c 或更新版本分发。}
+% \url{https://www.latex-project.org/lppl/}
+%
+% \clearpage
+% \hypertarget{manual.targets}{}
+% \section*{\WiseDocText{Demonstration targets}{示例引用目标}}
+% \markboth{\WiseDocText{Demonstration targets}{示例引用目标}}{\WiseDocText{Demonstration targets}{示例引用目标}}
+% \ifWiseDocEnglish
+% The examples link to the objects below. Captions number the figures and table;
+% amsmath numbers the equations. Chapter and experiment examples use
+% \cs{refstepcounter} and \cs{label}, with counters separate from the manual's headings.
+% \else
+% 手册中的示例链接到下方对象。图表通过标题编号，公式使用 amsmath；
+% 章类型与实验目标通过 \cs{refstepcounter} 和 \cs{label} 建立。
+% 示例计数器与正文标题的计数器分开。
+% \fi
+% \par\medskip
+% \WiseDocTargets
+% \StopEventually{}
+%
+% \section{\WiseDocText{Implementation}{实现}}
+% \texttt{wiseref.ins} extracts the package code from the \texttt{package} guard.
+% The default manual contains only user documentation. Remove
+% \cs{OnlyDescription} from the driver to typeset the implementation as well.
+%    \begin{macrocode}
+%<*package>
+\NeedsTeXFormat{LaTeX2e}[2023/06/01]
+\ProvidesExplPackage{wiseref}{2026/10/10}{1.2026a}{Typed references with configurable affixes}
+\prop_new:N \g__wise_labels_prop
+\prop_new:N \l__wise_options_prop
+\prop_new:N \l__wise_fallback_options_prop
+\prop_new:N \l__wise_user_options_prop
+\prop_new:N \l__wise_profiles_prop
+\prop_new:N \l__wise_profile_data_prop
+\prop_new:N \l__wise_aliases_prop
+\prop_new:N \g__wise_warned_langs_prop
+\tl_new:N \l__wise_lang_tl
+\tl_set:Nn \l__wise_lang_tl {auto}
+\tl_new:N \l__wise_selected_lang_tl
+\tl_new:N \l__wise_profile_data_tl
+\tl_new:N \l__wise_alias_value_tl
+\seq_new:N \l__wise_alias_seen_seq
+\bool_new:N \l__wise_alias_more_bool
+\bool_new:N \l__wise_alias_valid_bool
+\bool_new:N \l__wise_defining_profile_bool
+\bool_new:N \l__wise_auto_lang_bool
+\bool_new:N \l__wise_document_name_from_autoref_bool
+\bool_new:N \l__wise_document_name_eligible_bool
+\bool_new:N \l__wise_document_name_usable_bool
+\tl_new:N \l__wise_document_name_body_tl
+\prop_new:N \g__wise_warned_names_prop
+\tl_new:N \l__wise_document_name_cs_tl
+\tl_new:N \l__wise_document_name_normalized_tl
+\tl_new:N \l__wise_profile_affix_normalized_tl
+\tl_new:N \l__wise_document_name_side_tl
+\tl_new:N \l__wise_document_name_setting_tl
+\seq_new:N \l__wise_reference_types_seq
+\seq_new:N \l__wise_keys_seq
+\seq_new:N \l__wise_group_seq
+\seq_new:N \l__wise_groups_seq
+\tl_new:N \l__wise_type_tl
+\tl_new:N \l__wise_previous_type_tl
+\tl_new:N \l__wise_current_type_tl
+\tl_new:N \l__wise_label_key_tl
+\tl_new:N \l__wise_format_mode_tl
+\tl_new:N \l__wise_override_type_tl
+\tl_new:N \l__wise_ntheorem_type_tl
+\tl_new:N \l__wise_ntheorem_counter_tl
+\tl_new:N \l__wise_ntheorem_style_tl
+\bool_new:N \l__wise_ntheorem_numbered_bool
+\bool_new:N \g__wise_ntheorem_ready_bool
+\tl_new:N \l__wise_prefix_tl
+\tl_new:N \l__wise_suffix_tl
+\tl_new:N \l__wise_prefix_override_tl
+\tl_new:N \l__wise_suffix_override_tl
+\tl_new:N \l__wise_value_tl
+\tl_new:N \l__wise_number_tl
+\tl_new:N \l__wise_group_type_tl
+\bool_new:N \l__wise_link_bool
+\bool_new:N \l__wise_link_affixes_bool
+\bool_new:N \l__wise_sort_bool
+\bool_new:N \l__wise_compress_bool
+\bool_new:N \l__wise_appendix_bool
+\bool_new:N \g__wise_bare_tag_bool
+\bool_new:N \g__wise_custom_tag_bool
+\bool_new:N \l__wise_unnumbered_bool
+\bool_new:N \g__wise_amsmath_ready_bool
+\bool_new:N \g__wise_rerun_bool
+\int_new:N \l__wise_group_index_int
+\int_new:N \l__wise_number_index_int
+\prop_new:N \l__wise_type_order_prop
+\seq_new:N \l__wise_sort_match_seq
+\tl_new:N \l__wise_sort_b_type_tl
+\tl_new:N \l__wise_sort_a_parent_tl
+\tl_new:N \l__wise_sort_b_parent_tl
+\int_new:N \l__wise_sort_a_int
+\int_new:N \l__wise_sort_b_int
+\int_new:N \l__wise_type_order_int
+\seq_new:N \l__wise_units_seq
+\seq_new:N \l__wise_run_seq
+\tl_new:N \l__wise_run_parent_tl
+\int_new:N \l__wise_run_last_int
+\bool_new:N \l__wise_numeric_bool
+\cs_generate_variant:Nn \regex_extract_once:nnNTF {nV}
+\prg_generate_conditional_variant:Nnn \tl_if_novalue:n {V} {F}
+\msg_new:nnn {wiseref}{unknown-type}{No~reference~format~registered~for~type~'#1';~using~the~number~only.}
+\msg_new:nnn {wiseref}{undefined}{Reference~'#1'~is~undefined.}
+\msg_new:nnn {wiseref}{unnumbered}{Reference~'#1'~has~no~numbered~target;~using~the~standard~reference.}
+\msg_new:nnn {wiseref}{bad-key}{Unknown~wiseref~option~'#1'.}
+\msg_new:nnn {wiseref}{bad-lang-name}{Invalid~language~identifier~'#1'.}
+\msg_new:nnn {wiseref}{lang-cycle}{Language~aliases~form~a~cycle~at~'#1'.}
+\msg_new:nnn {wiseref}{unknown-lang}{No~profile~for~document~language~'#1';~using~the~English~fallback.}
+\msg_new:nnn {wiseref}{unknown-explicit-lang}{Language~profile~'#1'~is~not~registered.}
+\msg_new:nnn {wiseref}{unusable-name}
+  {Ignoring~document~reference~name~'#1':~it~requires~arguments~or~contains~an~undefined~command.~Using~the~profile~instead.}
+\msg_new:nnn {wiseref}{ntheorem-signature}
+  {Unsupported~ntheorem~entry~signature;~use~\string\wisereftype~for~custom~environment~types.}
+%    \end{macrocode}
+%
+% \subsection{Label metadata and environment adapters}
+% LaTeX writes standard labels; this package records their types and tag modes.
+% Rerun detection compares serialized text so that catcode differences are not
+% mistaken for changes to reference types.
+%    \begin{macrocode}
+\NewDocumentCommand \wiserefRecord { m m m }
+  { \prop_gput:Nnn \g__wise_labels_prop {#1} { {#2}{#3} } }
+% A distinct suffix namespace avoids collisions with ordinary label records.
+% xr/xr-hyper preserve that suffix when adding an external document prefix.
+\cs_new_protected:Npn\__wise_record_properties: { }
+\cs_new_protected:Npn\__wise_external_type:n #1 { }
+\cs_if_exist:NT\RecordProperties
+  {\cs_if_exist:NT\IfPropertyRecordedTF
+    {\NewProperty{wiseref-type}{now}{}{\l__wise_current_type_tl}
+     \NewProperty{wiseref-format}{now}{normal}{\l__wise_format_mode_tl}
+     \cs_set_protected:Npn\__wise_record_properties:
+       {\RecordProperties{\l__wise_label_key_tl @wiseref}{wiseref-type,wiseref-format}}
+     \cs_set_protected:Npn\__wise_external_type:n #1
+       {\IfPropertyRecordedT{#1@wiseref}{wiseref-type}
+         {\tl_set:Ne\l__wise_current_type_tl{\RefProperty{#1@wiseref}{wiseref-type}}
+          \IfPropertyRecordedT{#1@wiseref}{wiseref-format}
+            {\tl_set:Ne\l__wise_format_mode_tl{\RefProperty{#1@wiseref}{wiseref-format}}}}}}}
+% Old auxiliary files remain readable if the user later removes the package.
+\AddToHook{begindocument}[wiseref]
+  {\iow_now:Nn\@auxout{\providecommand\wiserefRecord[3]{}}}
+\cs_new_protected:Npn \__wise_capture:n #1
+  {
+    \tl_set:Ne\l__wise_label_key_tl{#1}
+    \tl_set:Ne \l__wise_current_type_tl {\@currentcounter}
+    \tl_if_empty:NF\l__wise_ntheorem_counter_tl
+      {\str_if_eq:eeT{\@currentcounter}{\l__wise_ntheorem_counter_tl}
+        {\tl_set_eq:NN\l__wise_current_type_tl\l__wise_ntheorem_type_tl}}
+    \tl_if_empty:NF \l__wise_override_type_tl
+      {\tl_set_eq:NN \l__wise_current_type_tl \l__wise_override_type_tl}
+    \bool_if:NT \l__wise_appendix_bool
+      {
+        \cs_if_exist:NTF \chapter
+          {\str_if_eq:VnT \l__wise_current_type_tl {chapter}{\tl_set:Nn \l__wise_current_type_tl {appendix}}}
+          {\str_if_eq:VnT \l__wise_current_type_tl {section}{\tl_set:Nn \l__wise_current_type_tl {appendix}}}
+      }
+    \bool_if:NT \l__wise_unnumbered_bool {\tl_clear:N \l__wise_current_type_tl}
+    \tl_if_empty:NF\l__wise_ntheorem_counter_tl
+      {\str_if_eq:eeT{\@currentcounter}{\l__wise_ntheorem_counter_tl}
+        {\bool_if:NF\l__wise_ntheorem_numbered_bool{\tl_clear:N\l__wise_current_type_tl}}}
+    \tl_set:Nn \l__wise_format_mode_tl {normal}
+    \str_if_eq:VnT \l__wise_current_type_tl {equation}
+      {
+        \bool_if:NT \g__wise_custom_tag_bool {\tl_set:Nn \l__wise_format_mode_tl {tag}}
+        \bool_if:NT \g__wise_bare_tag_bool {\tl_set:Nn \l__wise_format_mode_tl {bare}}
+      }
+    \tl_set:Ne\l_tmpa_tl{{\l__wise_current_type_tl}{\l__wise_format_mode_tl}}
+    \prop_get:NVNTF\g__wise_labels_prop\l__wise_label_key_tl\l_tmpb_tl
+      {\str_if_eq:eeF{\tl_to_str:V\l_tmpa_tl}{\tl_to_str:V\l_tmpb_tl}
+        {\bool_gset_true:N\g__wise_rerun_bool}}
+      {\bool_gset_true:N\g__wise_rerun_bool}
+    \protected@write\@auxout{}
+      {\string\wiserefRecord{\l__wise_label_key_tl}{\l__wise_current_type_tl}{\l__wise_format_mode_tl}}
+    \__wise_record_properties:
+  }
+\AddToHook{enddocument}[wiseref]
+  {\bool_if:NT\g__wise_rerun_bool
+    {\@latex@warning@no@line{Label(s)~may~have~changed.~Rerun~to~get~wiseref~types~right}}}
+\AddToHookWithArguments{label}[wiseref]{\__wise_capture:n{#1}}
+% Keep optional-argument refstepcounter dispatchers (e.g. cleveref) intact.
+% Page shipping alone does not create a new numbered reference target.
+\AddToHookWithArguments{cmd/stepcounter/after}[wiseref]
+  {\str_if_eq:nnF{#1}{page}{\bool_set_false:N\l__wise_unnumbered_bool}}
+\AddToHook{cmd/appendix/after}[wiseref]{\bool_set_true:N \l__wise_appendix_bool}
+\cs_if_exist:NT\appendices
+  {\AddToHook{cmd/appendices/after}[wiseref]{\bool_set_true:N\l__wise_appendix_bool}}
+% IEEEtran renders numbered appendices through its starred section machinery.
+% Preserve the public section command's star distinction in that mode.
+\cs_new_protected:Npn\__wise_ieee_appendices:
+  {
+    \bool_set_true:N\l__wise_appendix_bool
+    \cs_set_eq:NN\__wise_ieee_section:\section
+    \RenewDocumentCommand\section{s o m}
+      {\IfBooleanTF{##1}
+        {\IfNoValueTF{##2}{\__wise_ieee_section:*{##3}}{\__wise_ieee_section:*[##2]{##3}}
+         \bool_set_true:N\l__wise_unnumbered_bool}
+        {\IfNoValueTF{##2}{\__wise_ieee_section:{##3}}{\__wise_ieee_section:[##2]{##3}}
+         \bool_set_false:N\l__wise_unnumbered_bool}}
+  }
+\IfClassLoadedTF{IEEEtran}
+  {\AddToHook{cmd/appendices/after}[wiseref/ieee]{\__wise_ieee_appendices:}}
+  {\AddToHook{class/IEEEtran/after}[wiseref/ieee]
+    {\AddToHook{cmd/appendices/after}[wiseref/ieee]{\__wise_ieee_appendices:}}}
+\AddToHook{cmd/@ssect/before}[wiseref]{\bool_set_true:N \l__wise_unnumbered_bool}
+\cs_if_exist:NT \@schapter
+  {\AddToHook{cmd/@schapter/before}[wiseref]{\bool_set_true:N \l__wise_unnumbered_bool}}
+\cs_new_protected:Npn \__wise_amsmath:
+  {\bool_if:NF \g__wise_amsmath_ready_bool
+    {\bool_gset_true:N \g__wise_amsmath_ready_bool \__wise_amsmath_install:}}
+\cs_new_protected:Npn \__wise_amsmath_install:
+  {
+    \AddToHook{cmd/make@df@tag@@/before}[wiseref]
+      {\bool_gset_true:N \g__wise_bare_tag_bool \bool_gset_true:N \g__wise_custom_tag_bool}
+    \AddToHook{cmd/make@df@tag@@@/before}[wiseref]
+      {\bool_gset_false:N \g__wise_bare_tag_bool \bool_gset_true:N \g__wise_custom_tag_bool}
+    \AddToHook{cmd/make@display@tag/after}[wiseref]
+      {\bool_gset_false:N \g__wise_bare_tag_bool \bool_gset_false:N \g__wise_custom_tag_bool}
+    \clist_map_inline:nn {equation,align,gather,multline,flalign,alignat,equation*,align*,gather*,multline*}
+      {\AddToHook{env/##1/before}[wiseref]
+        {\bool_gset_false:N \g__wise_bare_tag_bool \bool_gset_false:N \g__wise_custom_tag_bool}}
+    \clist_map_inline:nn {equation,align,gather,multline,flalign,alignat,subequations,equation*,align*,gather*,multline*}
+      {\AddToHook{env/##1/begin}[wiseref]{\wisereftype{equation}}}
+  }
+\AddToHook{package/amsmath/after}[wiseref]{\__wise_amsmath:}
+\IfPackageLoadedT{amsmath}{\__wise_amsmath:}
+% ntheorem 1.33 has a fixed three-argument entry: environment, counter, title.
+% A before hook leaves its trailing optional-title dispatcher untouched.
+\cs_new_protected:Npn\__wise_ntheorem_begin:nn #1#2
+  {\tl_set:Ne\l__wise_ntheorem_type_tl{#1}
+   \tl_set:Ne\l__wise_ntheorem_counter_tl{#2}
+   \bool_set_true:N\l__wise_ntheorem_numbered_bool
+   \cs_if_exist:NT\thm@starredenv{\bool_set_false:N\l__wise_ntheorem_numbered_bool}
+   \cs_if_exist:cT{setparms@#1}
+     {\tl_set:Ne\l__wise_ntheorem_style_tl{\cs_replacement_spec:c{setparms@#1}}
+      \exp_args:NnV\regex_match:nnT{th@(?:nonumber|empty)}\l__wise_ntheorem_style_tl
+        {\bool_set_false:N\l__wise_ntheorem_numbered_bool}}}
+\cs_new_protected:Npn\__wise_ntheorem:
+  {\bool_if:NF\g__wise_ntheorem_ready_bool
+    {\bool_gset_true:N\g__wise_ntheorem_ready_bool
+     \str_if_eq:eeTF{\cs_parameter_spec:N\@thm}
+       {\c_hash_str 1\c_hash_str 2\c_hash_str 3}
+       {\AddToHookWithArguments{cmd/@thm/before}[wiseref/ntheorem]
+         {\__wise_ntheorem_begin:nn{##1}{##2}}}
+       {\msg_warning:nn{wiseref}{ntheorem-signature}}}}
+\AddToHook{package/ntheorem/after}[wiseref]{\__wise_ntheorem:}
+\IfPackageLoadedT{ntheorem}{\__wise_ntheorem:}
+% Custom environments can select a type locally without rewriting \label.
+\NewDocumentCommand \wisereftype {m}{\tl_set:Nn \l__wise_override_type_tl {#1}}
+%    \end{macrocode}
+%
+% \subsection{Formats and language settings}
+% Profiles, inherited document names, and explicit settings are separate layers.
+% Resolve them within each reference call; language changes never rewrite user
+% settings, and grouped configuration remains local.
+%    \begin{macrocode}
+\cs_new_protected:Npn \__wise_declare_type:n #1
+  {
+    \keys_if_exist:nnF {wiseref}{#1}
+      {\keys_define:nn {wiseref}
+        {#1 .code:n = {\tl_set:Nn \l__wise_type_tl {#1}\keys_set:nn {wiseref/type}{##1}}}}
+  }
+\cs_new_protected:Npn \__wise_set:nn #1#2
+  {
+    \str_case:nn {#1}
+      {{prefix}{\use:e{\exp_not:N\__wise_put:nn{\l__wise_type_tl/prefix-plural}{\exp_not:n{#2}}}}
+       {suffix}{\use:e{\exp_not:N\__wise_put:nn{\l__wise_type_tl/suffix-plural}{\exp_not:n{#2}}}}}
+    \use:e{\exp_not:N\__wise_put:nn{\l__wise_type_tl/#1}{\exp_not:n{#2}}}
+  }
+\cs_new_protected:Npn \__wise_put:nn #1#2
+  {\bool_if:NTF\l__wise_defining_profile_bool
+    {\prop_put:Nnn\l__wise_profile_data_prop{#1}{#2}}
+    {\prop_put:Nnn\l__wise_user_options_prop{#1}{#2}}}
+\keys_define:nn {wiseref/type}
+  {
+    prefix .code:n = {\__wise_set:nn {prefix}{#1}},
+    suffix .code:n = {\__wise_set:nn {suffix}{#1}},
+    prefix-plural .code:n = {\__wise_set:nn {prefix-plural}{#1}},
+    suffix-plural .code:n = {\__wise_set:nn {suffix-plural}{#1}},
+    number-format .code:n = {\__wise_set:nn {number-format}{#1}},
+    use-document-name .choices:nn = {true,false}
+      {\exp_args:NnV\__wise_set:nn{use-document-name}\l_keys_choice_tl},
+    use-document-name .default:n = true,
+    unknown .code:n = {\msg_error:nnV {wiseref}{bad-key}\l_keys_key_str},
+  }
+\keys_define:nn {wiseref}
+  {
+    lang .tl_set:N = \l__wise_lang_tl,
+    lang .value_required:n = true,
+    language .code:n = {\msg_error:nnn{wiseref}{bad-key}{language;~use~lang}},
+    langs .code:n = {\keys_set:nn{wiseref/langs}{#1}},
+    lang-aliases .code:n = {\keyval_parse:NNn\__wise_alias_missing:n\__wise_alias:nn{#1}},
+    links .choices:nn = {none,numbers,numbers-and-affixes}
+      {\bool_set_true:N\l__wise_link_affixes_bool
+       \str_case:Vn\l_keys_choice_tl
+         {{none}{\bool_set_false:N\l__wise_link_bool}
+          {numbers}{\bool_set_true:N\l__wise_link_bool
+                    \bool_set_false:N\l__wise_link_affixes_bool}
+          {numbers-and-affixes}{\bool_set_true:N\l__wise_link_bool}}},
+    links .value_required:n = true,
+    links .initial:n = numbers-and-affixes,
+    link .code:n = {\msg_error:nnn{wiseref}{bad-key}{link;~use~links}},
+    link-affixes .code:n = {\msg_error:nnn{wiseref}{bad-key}{link-affixes;~use~links}},
+    name-in-link .code:n = {\msg_error:nnn{wiseref}{bad-key}{name-in-link;~use~links}},
+    sort .bool_set:N = \l__wise_sort_bool,
+    compress .bool_set:N = \l__wise_compress_bool,
+    unknown .code:n =
+      {\exp_args:NV \__wise_declare_type:n \l_keys_key_str
+       \use:e{\exp_not:N \keys_set:nn {wiseref}{\l_keys_key_str={\exp_not:n{#1}}}}},
+  }
+\clist_map_inline:nn
+  {group-separator,group-last-separator,number-separator,number-last-separator,range-separator,name-separator}
+  {
+    \keys_define:nn{wiseref}{#1 .code:n={\__wise_put:nn{#1}{##1}}}
+    \keys_define:nn{wiseref/profile}{#1 .code:n={\__wise_put:nn{#1}{##1}}}
+  }
+\keys_define:nn{wiseref/profile}
+  {unknown .code:n={\tl_set_eq:NN\l__wise_type_tl\l_keys_key_str
+    \keys_set:nn{wiseref/type}{#1}}}
+\keys_define:nn{wiseref/langs}
+  {unknown .code:n={\use:e{\exp_not:N\__wise_register_profile:nn
+    {\l_keys_key_str}{\exp_not:n{#1}}}}}
+\NewDocumentCommand \wiserefsetup {+m}{\keys_set:nn{wiseref}{#1}}
+\prg_new_protected_conditional:Npnn\__wise_lang_name:n #1 {T}
+  {\regex_match:nnTF{\A[a-zA-Z][a-zA-Z0-9_\-]*\Z}{#1}
+    {\str_if_eq:eeTF{\str_lowercase:n{#1}}{auto}
+      {\msg_error:nnn{wiseref}{bad-lang-name}{#1}\prg_return_false:}{\prg_return_true:}}
+    {\msg_error:nnn{wiseref}{bad-lang-name}{#1}\prg_return_false:}}
+\cs_new_protected:Npn\__wise_canonical_lang:nN #1#2
+  {
+    \tl_set:Ne #2 {\str_lowercase:n{#1}}
+    \seq_clear:N\l__wise_alias_seen_seq
+    \bool_set_true:N\l__wise_alias_more_bool
+    \bool_set_true:N\l__wise_alias_valid_bool
+    \bool_while_do:Nn\l__wise_alias_more_bool
+      {
+        \seq_if_in:NVTF\l__wise_alias_seen_seq #2
+          {\msg_error:nnV{wiseref}{lang-cycle}#2
+           \bool_set_false:N\l__wise_alias_valid_bool\bool_set_false:N\l__wise_alias_more_bool}
+          {\seq_put_right:NV\l__wise_alias_seen_seq #2
+           \prop_get:NVNTF\l__wise_aliases_prop #2 \l__wise_alias_value_tl
+             {\tl_set_eq:NN #2 \l__wise_alias_value_tl}
+             {\bool_set_false:N\l__wise_alias_more_bool}}
+      }
+  }
+\cs_new_protected:Npn\__wise_alias_missing:n #1{\msg_error:nnn{wiseref}{bad-lang-name}{#1}}
+\cs_new_protected:Npn\__wise_alias:nn #1#2
+  {
+    \__wise_lang_name:nT{#1}{\__wise_lang_name:nT{#2}
+      {\group_begin:
+       \prop_put:Nee\l__wise_aliases_prop{\str_lowercase:n{#1}}{\str_lowercase:n{#2}}
+       \__wise_canonical_lang:nN{#1}\l__wise_selected_lang_tl
+       \bool_if:NTF\l__wise_alias_valid_bool
+         {\use:e{\group_end:\exp_not:N\prop_put:Nnn\exp_not:N\l__wise_aliases_prop
+           {\str_lowercase:n{#1}}{\str_lowercase:n{#2}}}}
+         {\group_end:}}}
+  }
+\cs_new_protected:Npn\__wise_register_profile:nn #1#2
+  {
+    \__wise_lang_name:nT{#1}
+      {\group_begin:
+       \__wise_canonical_lang:nN{#1}\l__wise_selected_lang_tl
+       \bool_if:NTF\l__wise_alias_valid_bool
+         {
+           \prop_clear:N\l__wise_profile_data_prop
+           \prop_get:NVNT\l__wise_profiles_prop\l__wise_selected_lang_tl\l__wise_profile_data_tl
+             {\exp_args:NNV\prop_set_from_keyval:Nn\l__wise_profile_data_prop\l__wise_profile_data_tl}
+           \bool_set_true:N\l__wise_defining_profile_bool
+           \keys_set:nn{wiseref/profile}{#2}
+           \use:e{\group_end:\exp_not:N\prop_put:Nnn\exp_not:N\l__wise_profiles_prop
+             {\l__wise_selected_lang_tl}{\prop_to_keyval:N\l__wise_profile_data_prop}}
+         }
+         {\group_end:}}
+  }
+\cs_new_protected:Npn \__wise_builtin_profile:n #1
+  {
+    \group_begin:
+    \prop_clear:N\l__wise_profile_data_prop
+    \bool_set_true:N\l__wise_defining_profile_bool
+    \str_if_eq:nnTF {#1}{chinese}
+      {
+        \keys_set:nn {wiseref/profile}
+          {group-separator={，},group-last-separator={和},number-separator={、},number-last-separator={、},range-separator={至},name-separator={}}
+        \clist_map_inline:nn
+          {{figure}{图}{图},{subfigure}{图}{图},{table}{表}{表},{subtable}{表}{表},
+           {equation}{式}{式},{section}{第}{第},{subsection}{第}{第},{subsubsection}{第}{第},
+           {chapter}{第}{第},{appendix}{附录}{附录},{theorem}{定理}{定理},{lemma}{引理}{引理},
+           {definition}{定义}{定义},{proposition}{命题}{命题},{corollary}{推论}{推论},
+           {enumi}{项}{项},{enumii}{项}{项},{footnote}{脚注}{脚注}}
+          {\__wise_set_builtin_type:nnn ##1}
+        \clist_map_inline:nn {chapter,section,subsection,subsubsection}
+          {\prop_put:Nnn \l__wise_profile_data_prop {##1/suffix}{节}}
+        \prop_put:Nnn \l__wise_profile_data_prop {chapter/suffix}{章}
+      }
+      {
+        \keys_set:nn {wiseref/profile}
+          {group-separator={,~},group-last-separator={~and~},number-separator={,~},number-last-separator={~and~},range-separator={--},name-separator={\nobreakspace}}
+        \clist_map_inline:nn
+          {{figure}{Figure~}{Figures~},{subfigure}{Figure~}{Figures~},
+           {table}{Table~}{Tables~},{subtable}{Table~}{Tables~},
+           {equation}{Equation~}{Equations~},{chapter}{Chapter~}{Chapters~},
+           {section}{Section~}{Sections~},{subsection}{Section~}{Sections~},{subsubsection}{Section~}{Sections~},
+           {appendix}{Appendix~}{Appendices~},{theorem}{Theorem~}{Theorems~},
+           {lemma}{Lemma~}{Lemmas~},{definition}{Definition~}{Definitions~},
+           {proposition}{Proposition~}{Propositions~},{corollary}{Corollary~}{Corollaries~},
+           {enumi}{Item~}{Items~},{enumii}{Item~}{Items~},{footnote}{Footnote~}{Footnotes~}}
+          {\__wise_set_builtin_type:nnn ##1}
+    }
+    \prop_put:Nnn \l__wise_profile_data_prop {equation/number-format}{\textup{(##1)}}
+    \use:e{\group_end:\exp_not:N\prop_put:Nnn\exp_not:N\l__wise_profiles_prop
+      {#1}{\prop_to_keyval:N\l__wise_profile_data_prop}}
+  }
+\cs_new_protected:Npn \__wise_set_builtin_type:nnn #1#2#3
+  {
+    \__wise_declare_type:n {#1}
+    \prop_put:Nnn \l__wise_profile_data_prop {#1/prefix}{#2}
+    \prop_put:Nnn \l__wise_profile_data_prop {#1/prefix-plural}{#3}
+    \prop_put:Nnn \l__wise_profile_data_prop {#1/suffix}{}
+    \prop_put:Nnn \l__wise_profile_data_prop {#1/number-format}{##1}
+    \prop_put:Nnn \l__wise_profile_data_prop {#1/use-document-name}{true}
+  }
+\__wise_builtin_profile:n {english}
+\__wise_builtin_profile:n {chinese}
+% Standalone names were checked against zref-clever, cleveref, and the
+% babel/polyglossia caption data. These are data declarations, not adapters to
+% those packages. Inflected sentence contexts remain explicit user settings.
+\cs_new_protected:Npn\__wise_translated_name:nnnn #1#2#3#4
+  {\__wise_set_builtin_type:nnn{#2}{#3#1}{#4#1}}
+\cs_new_protected:Npn\__wise_copy_type:nn #1#2
+  {\clist_map_inline:nn{prefix,prefix-plural,suffix,number-format,use-document-name}
+    {\prop_get:NnN\l__wise_profile_data_prop{#2/##1}\l_tmpa_tl
+     \prop_put:NnV\l__wise_profile_data_prop{#1/##1}\l_tmpa_tl}}
+\cs_new_protected:Npn\__wise_translated_profile:nnnnn #1#2#3#4#5
+  {
+    \group_begin:
+    \prop_clear:N\l__wise_profile_data_prop
+    \bool_set_true:N\l__wise_defining_profile_bool
+    \keys_set:nn{wiseref/profile}
+      {group-separator={,~},group-last-separator={#2},
+       number-separator={,~},number-last-separator={#2},
+       range-separator={#3},name-separator={#4}}
+    \clist_map_inline:nn{#5}{\__wise_translated_name:nnnn{#4}##1}
+    \__wise_copy_type:nn{subfigure}{figure}
+    \__wise_copy_type:nn{subtable}{table}
+    \__wise_copy_type:nn{subsection}{section}
+    \__wise_copy_type:nn{subsubsection}{section}
+    \__wise_copy_type:nn{enumii}{enumi}
+    \prop_put:Nnn\l__wise_profile_data_prop{equation/number-format}{\textup{(##1)}}
+    \use:e{\group_end:\exp_not:N\prop_put:Nnn\exp_not:N\l__wise_profiles_prop
+      {#1}{\prop_to_keyval:N\l__wise_profile_data_prop}}
+  }
+\__wise_translated_profile:nnnnn{french}{~et~}{~à~}{\nobreakspace}
+  {{figure}{Figure}{Figures},{table}{Table}{Tables},
+   {equation}{Équation}{Équations},{chapter}{Chapitre}{Chapitres},
+   {section}{Section}{Sections},{appendix}{Annexe}{Annexes},
+   {theorem}{Théorème}{Théorèmes},{lemma}{Lemme}{Lemmes},
+   {definition}{Définition}{Définitions},{proposition}{Proposition}{Propositions},
+   {corollary}{Corollaire}{Corollaires},{enumi}{Point}{Points},{footnote}{Note}{Notes}}
+\__wise_translated_profile:nnnnn{german}{~und~}{~bis~}{\nobreakspace}
+  {{figure}{Abbildung}{Abbildungen},{table}{Tabelle}{Tabellen},
+   {equation}{Gleichung}{Gleichungen},{chapter}{Kapitel}{Kapitel},
+   {section}{Abschnitt}{Abschnitte},{appendix}{Anhang}{Anhänge},
+   {theorem}{Satz}{Sätze},{lemma}{Lemma}{Lemmata},
+   {definition}{Definition}{Definitionen},{proposition}{Proposition}{Propositionen},
+   {corollary}{Korollar}{Korollare},{enumi}{Punkt}{Punkte},{footnote}{Fußnote}{Fußnoten}}
+\__wise_translated_profile:nnnnn{spanish}{~y~}{~a~}{\nobreakspace}
+  {{figure}{Figura}{Figuras},{table}{Cuadro}{Cuadros},
+   {equation}{Ecuación}{Ecuaciones},{chapter}{Capítulo}{Capítulos},
+   {section}{Sección}{Secciones},{appendix}{Apéndice}{Apéndices},
+   {theorem}{Teorema}{Teoremas},{lemma}{Lema}{Lemas},
+   {definition}{Definición}{Definiciones},{proposition}{Proposición}{Proposiciones},
+   {corollary}{Corolario}{Corolarios},{enumi}{Punto}{Puntos},{footnote}{Nota}{Notas}}
+\__wise_translated_profile:nnnnn{portuguese}{~e~}{~a~}{\nobreakspace}
+  {{figure}{Figura}{Figuras},{table}{Tabela}{Tabelas},
+   {equation}{Equação}{Equações},{chapter}{Capítulo}{Capítulos},
+   {section}{Seção}{Seções},{appendix}{Apêndice}{Apêndices},
+   {theorem}{Teorema}{Teoremas},{lemma}{Lema}{Lemas},
+   {definition}{Definição}{Definições},{proposition}{Proposição}{Proposições},
+   {corollary}{Corolário}{Corolários},{enumi}{Item}{Itens},{footnote}{Nota}{Notas}}
+\__wise_translated_profile:nnnnn{italian}{~e~}{--}{\nobreakspace}
+  {{figure}{Figura}{Figure},{table}{Tabella}{Tabelle},
+   {equation}{Equazione}{Equazioni},{chapter}{Capitolo}{Capitoli},
+   {section}{Sezione}{Sezioni},{appendix}{Appendice}{Appendici},
+   {theorem}{Teorema}{Teoremi},{lemma}{Lemma}{Lemmi},
+   {definition}{Definizione}{Definizioni},{proposition}{Proposizione}{Proposizioni},
+   {corollary}{Corollario}{Corollari},{enumi}{Punto}{Punti},{footnote}{Nota}{Note}}
+\__wise_translated_profile:nnnnn{dutch}{~en~}{~t/m~}{\nobreakspace}
+  {{figure}{Figuur}{Figuren},{table}{Tabel}{Tabellen},
+   {equation}{Vergelijking}{Vergelijkingen},{chapter}{Hoofdstuk}{Hoofdstukken},
+   {section}{Paragraaf}{Paragrafen},{appendix}{Bijlage}{Bijlagen},
+   {theorem}{Stelling}{Stellingen},{lemma}{Lemma}{Lemma's},
+   {definition}{Definitie}{Definities},{proposition}{Propositie}{Proposities},
+   {corollary}{Gevolg}{Gevolgen},{enumi}{Punt}{Punten},{footnote}{Voetnoot}{Voetnoten}}
+\__wise_translated_profile:nnnnn{russian}{~и~}{--}{\nobreakspace}
+  {{figure}{Рисунок}{Рисунки},{table}{Таблица}{Таблицы},
+   {equation}{Уравнение}{Уравнения},{chapter}{Глава}{Главы},
+   {section}{Раздел}{Разделы},{appendix}{Приложение}{Приложения},
+   {theorem}{Теорема}{Теоремы},{lemma}{Лемма}{Леммы},
+   {definition}{Определение}{Определения},{proposition}{Предложение}{Предложения},
+   {corollary}{Следствие}{Следствия},{enumi}{Пункт}{Пункты},{footnote}{Сноска}{Сноски}}
+\__wise_translated_profile:nnnnn{greek}{~και~}{--}{\nobreakspace}
+  {{figure}{Σχήμα}{Σχήματα},{table}{Πίνακας}{Πίνακες},
+   {equation}{Εξίσωση}{Εξισώσεις},{chapter}{Κεφάλαιο}{Κεφάλαια},
+   {section}{Ενότητα}{Ενότητες},{appendix}{Παράρτημα}{Παραρτήματα},
+   {theorem}{Θεώρημα}{Θεωρήματα},{lemma}{Λήμμα}{Λήμματα},
+   {definition}{Ορισμός}{Ορισμοί},{proposition}{Πρόταση}{Προτάσεις},
+   {corollary}{Πόρισμα}{Πορίσματα},{enumi}{Στοιχείο}{Στοιχεία},{footnote}{Υποσημείωση}{Υποσημειώσεις}}
+\__wise_translated_profile:nnnnn{japanese}{、}{〜}{}
+  {{figure}{図}{図},{table}{表}{表},{equation}{式}{式},
+   {chapter}{第}{第},{section}{第}{第},{appendix}{付録}{付録},
+   {theorem}{定理}{定理},{lemma}{補題}{補題},{definition}{定義}{定義},
+   {proposition}{命題}{命題},{corollary}{系}{系},{enumi}{項}{項},{footnote}{脚注}{脚注}}
+\__wise_register_profile:nn{japanese}
+  {group-separator={、},number-separator={、},
+    chapter={suffix={章}},
+    section={suffix={節}},
+    subsection={suffix={節}},
+    subsubsection={suffix={節}}}
+\__wise_translated_profile:nnnnn{arabic}{~و~}{--}{\nobreakspace}
+  {{figure}{الشكل}{الأشكال},{table}{الجدول}{الجداول},
+   {equation}{المعادلة}{المعادلات},{chapter}{الباب}{الأبواب},
+   {section}{القسم}{الأقسام},{appendix}{الملحق}{الملاحق},
+   {theorem}{المبرهنة}{المبرهنات},{lemma}{القضية~المساعدة}{القضايا~المساعدة},
+   {definition}{التعريف}{التعريفات},{proposition}{القضية}{القضايا},
+   {corollary}{النتيجة~المباشرة}{النتائج~المباشرة},
+   {enumi}{البند}{البنود},{footnote}{الحاشية}{الحواشي}}
+\prop_set_from_keyval:Nn\l__wise_aliases_prop
+  {en=english,zh=chinese,fr=french,de=german,es=spanish,pt=portuguese,
+   it=italian,nl=dutch,ru=russian,el=greek,ja=japanese,ar=arabic,
+   american=english,british=english,
+   ukenglish=english,usenglish=english,australian=english,canadian=english,
+   newzealand=english,schinese=chinese,simplified-chinese=chinese,zh-cn=chinese,zh-hans=chinese,
+   francais=french,acadian=french,canadien=french,
+   ngerman=german,austrian=german,naustrian=german,swissgerman=german,nswissgerman=german,
+   portuges=portuguese,brazil=portuguese,brazilian=portuguese}
+\cs_new_protected:Npn\__wise_apply_profile:n #1
+  {
+    \prop_get:NnNT\l__wise_profiles_prop{#1}\l__wise_profile_data_tl
+      {\exp_args:NNV\prop_set_from_keyval:Nn\l__wise_profile_data_prop\l__wise_profile_data_tl
+       \prop_map_inline:Nn\l__wise_profile_data_prop{\prop_put:Nnn\l__wise_options_prop{##1}{##2}}}
+  }
+\cs_new_protected:Npn\__wise_document_lang:N #1
+  {
+    \tl_set:Nn #1 {english}
+    % The Chinese scheme is supplied by either ctex classes or the package.
+    % Check it at reference time, including when ctex was loaded later.
+    \clist_map_inline:nn
+      {ctex-scheme-chinese.def,ctex-scheme-chinese-article.def,
+       ctex-scheme-chinese-book.def,ctex-scheme-chinese-report.def,
+       ctex-scheme-chinese-beamer.def}
+      {\IfFileLoadedT{##1}{\tl_set:Nn #1 {chinese}\clist_map_break:}}
+    % A real language manager is authoritative, including local switches.
+    \IfPackageLoadedTF{babel}
+      {\cs_if_exist:NT\languagename{\tl_set:Ne #1 {\languagename}}}
+      {\IfPackageLoadedT{polyglossia}
+        {\cs_if_exist:NTF\babelname{\tl_set:Ne #1 {\babelname}}
+          {\cs_if_exist:NT\languagename{\tl_set:Ne #1 {\languagename}}}}}
+  }
+\cs_new_protected:Npn\__wise_resolve_options:
+  {
+    \tl_set:Ne\l_tmpa_tl{\l__wise_lang_tl}
+    \tl_trim_spaces:N\l_tmpa_tl
+    \tl_set:Ne\l_tmpa_tl{\str_lowercase:f{\l_tmpa_tl}}
+    \bool_set_false:N\l__wise_auto_lang_bool
+    \str_if_eq:VnT\l_tmpa_tl{auto}
+      {
+        \bool_set_true:N\l__wise_auto_lang_bool
+        \__wise_document_lang:N\l_tmpa_tl
+      }
+    \exp_args:NV\__wise_canonical_lang:nN\l_tmpa_tl\l__wise_selected_lang_tl
+    \bool_if:NF\l__wise_alias_valid_bool{\tl_set:Nn\l__wise_selected_lang_tl{english}}
+    \prop_if_in:NVF\l__wise_profiles_prop\l__wise_selected_lang_tl
+      {
+        \bool_if:NTF\l__wise_auto_lang_bool
+          {\prop_if_in:NVF\g__wise_warned_langs_prop\l__wise_selected_lang_tl
+            {\msg_warning:nnV{wiseref}{unknown-lang}\l__wise_selected_lang_tl
+             \prop_gput:NVn\g__wise_warned_langs_prop\l__wise_selected_lang_tl{}}}
+          {\msg_error:nnV{wiseref}{unknown-explicit-lang}\l__wise_selected_lang_tl}
+        \tl_set:Nn\l__wise_selected_lang_tl{english}
+      }
+    \prop_clear:N\l__wise_options_prop
+    \__wise_apply_profile:n{english}
+    \prop_set_eq:NN\l__wise_fallback_options_prop\l__wise_options_prop
+    \str_if_eq:VnF\l__wise_selected_lang_tl{english}
+      {\exp_args:NV\__wise_apply_profile:n\l__wise_selected_lang_tl}
+    \seq_clear:N\l__wise_reference_types_seq
+    \seq_map_inline:Nn\l__wise_keys_seq
+      {\__wise_get_type:n{##1}
+        \tl_if_empty:NF\l__wise_current_type_tl
+          {\seq_if_in:NVF\l__wise_reference_types_seq\l__wise_current_type_tl
+             {\seq_put_right:NV\l__wise_reference_types_seq\l__wise_current_type_tl
+              \exp_args:NV\__wise_ensure_type_defaults:n\l__wise_current_type_tl}}}
+    \bool_if:NT\l__wise_auto_lang_bool
+      {\seq_map_inline:Nn\l__wise_reference_types_seq{\__wise_apply_document_name:n{##1}}}
+    \prop_map_inline:Nn\l__wise_user_options_prop{\prop_put:Nnn\l__wise_options_prop{##1}{##2}}
+  }
+\cs_new_protected:Npn\__wise_ensure_type_defaults:n #1
+  {
+    \prop_if_in:NnF\l__wise_options_prop{#1/use-document-name}
+      {\prop_put:Nnn\l__wise_options_prop{#1/use-document-name}{true}}
+    \prop_if_in:NnF\l__wise_options_prop{#1/suffix}
+      {\prop_put:Nnn\l__wise_options_prop{#1/suffix}{}}
+    \prop_if_in:NnF\l__wise_options_prop{#1/number-format}
+      {\prop_put:Nnn\l__wise_options_prop{#1/number-format}{##1}}
+  }
+% Comparison text is separate from the original name command used for output.
+\cs_new_protected:Npn \__wise_normalize_reference_text:nN #1#2
+  {
+    \cs_if_exist:NT\foreignlanguage
+      {\text_declare_purify_equivalent:Nn\foreignlanguage{\use_ii:nn}}
+    \tl_set:Ne #2 {\text_purify:n{#1}}
+    \tl_remove_all:Nn #2{\nobreakspace}
+    \tl_remove_all:Nn #2{\protect}
+    \tl_remove_all:Nn #2{\space}
+    \regex_replace_all:nnN{\cB.\cE.}{}#2
+    \tl_trim_spaces:N #2
+    \tl_set:Ne #2{\str_lowercase:f{#2}}
+  }
+% Built-in Chinese/Japanese heading names occupy the suffix; other names
+% occupy the prefix. Users place names explicitly with prefix/suffix settings.
+\cs_new_protected:Npn \__wise_select_document_name_side:n #1
+  {
+    \tl_set:Nn\l__wise_document_name_side_tl{prefix}
+    \bool_lazy_or:nnT
+      {\str_if_eq_p:Vn\l__wise_selected_lang_tl{chinese}}
+      {\str_if_eq_p:Vn\l__wise_selected_lang_tl{japanese}}
+      {\clist_if_in:nnT{chapter,section,subsection,subsubsection}{#1}
+         {\tl_set:Nn\l__wise_document_name_side_tl{suffix}}}
+  }
+\cs_new_protected:Npn \__wise_apply_document_name:n #1
+  {
+    \prop_get:NnNTF\l__wise_user_options_prop{#1/use-document-name}\l__wise_document_name_setting_tl
+      {}{\prop_get:NnN\l__wise_options_prop{#1/use-document-name}\l__wise_document_name_setting_tl}
+    \str_if_eq:VnT\l__wise_document_name_setting_tl{true}
+      {\__wise_select_document_name_side:n{#1}
+       % An explicit affix, including an empty one, needs no inherited name.
+       \prop_if_in:NeF\l__wise_user_options_prop{#1/\l__wise_document_name_side_tl}
+         {\__wise_find_document_name:n{#1}}}
+  }
+\cs_new_protected:Npn \__wise_find_document_name:n #1
+  {
+    \tl_set:Nn\l__wise_document_name_cs_tl{#1name}
+    \bool_set_false:N\l__wise_document_name_from_autoref_bool
+    \str_case:nn{#1}
+      {{subfigure}{\tl_set:Nn\l__wise_document_name_cs_tl{figurename}}
+       {subtable}{\tl_set:Nn\l__wise_document_name_cs_tl{tablename}}}
+    % ntheorem's optional heading updates <type>name; its Keyword is the type name.
+    \IfPackageLoadedT{ntheorem}
+      {\cs_if_exist:cT{#1Keyword}{\tl_set:Nn\l__wise_document_name_cs_tl{#1Keyword}}}
+    \cs_if_exist:cF{\l__wise_document_name_cs_tl}
+      {\tl_set:Nn\l__wise_document_name_cs_tl{#1autorefname}
+       \bool_set_true:N\l__wise_document_name_from_autoref_bool}
+    \cs_if_exist:cT{\l__wise_document_name_cs_tl}
+      {
+        \bool_set_true:N\l__wise_document_name_usable_bool
+        % Caption formatters taking arguments are not standalone reference names.
+        \tl_if_empty:eF{\exp_args:Nc\cs_parameter_spec:N{\l__wise_document_name_cs_tl}}
+          {\bool_set_false:N\l__wise_document_name_usable_bool}
+        \bool_if:NT\l__wise_document_name_from_autoref_bool
+          {\bool_if:NT\l__wise_document_name_usable_bool
+            {\exp_args:Nc\__wise_read_document_name_body:N{\l__wise_document_name_cs_tl}
+             \exp_args:NV\__wise_check_document_name_tokens:n\l__wise_document_name_body_tl}}
+        \bool_if:NTF\l__wise_document_name_usable_bool
+          {\__wise_inherit_document_name:n{#1}}
+          {\prop_if_in:NVF\g__wise_warned_names_prop\l__wise_document_name_cs_tl
+            {\msg_warning:nnV{wiseref}{unusable-name}\l__wise_document_name_cs_tl
+             \prop_gput:NVn\g__wise_warned_names_prop\l__wise_document_name_cs_tl{}}}
+      }
+  }
+\cs_new_protected:Npn \__wise_read_document_name_body:N #1
+  {\tl_set:No\l__wise_document_name_body_tl{#1}}
+\cs_new_protected:Npn \__wise_check_document_name_tokens:n #1
+  {\tl_map_inline:nn{#1}
+    {\tl_if_single_token:nTF{##1}
+      {\token_if_cs:NT ##1 {\cs_if_exist:NF ##1 {\bool_set_false:N\l__wise_document_name_usable_bool}}}
+      {\__wise_check_document_name_tokens:n{##1}}}}
+\cs_new_protected:Npn \__wise_inherit_document_name:n #1
+  {
+    \__wise_normalize_reference_text:nN{\use:c{\l__wise_document_name_cs_tl}}\l__wise_document_name_normalized_tl
+    % Ignore unlocalized English fallback names in other languages. A native
+    % name command in an English document retains its exact spelling.
+    \prop_get:NnNTF\l__wise_fallback_options_prop{#1/prefix}\l__wise_profile_affix_normalized_tl
+      {\__wise_normalize_reference_text:nN{\l__wise_profile_affix_normalized_tl}\l__wise_profile_affix_normalized_tl}
+      {\tl_clear:N\l__wise_profile_affix_normalized_tl}
+    \bool_set_true:N\l__wise_document_name_eligible_bool
+    \tl_if_eq:NNT\l__wise_document_name_normalized_tl\l__wise_profile_affix_normalized_tl
+      {\bool_set_false:N\l__wise_document_name_eligible_bool
+       \str_if_eq:VnT\l__wise_selected_lang_tl{english}
+         {\bool_if:NF\l__wise_document_name_from_autoref_bool
+            {\bool_set_true:N\l__wise_document_name_eligible_bool}}}
+    \bool_if:NT\l__wise_document_name_eligible_bool
+      {
+        \prop_get:NeNTF\l__wise_options_prop{#1/\l__wise_document_name_side_tl}\l__wise_profile_affix_normalized_tl
+          {\__wise_normalize_reference_text:nN{\l__wise_profile_affix_normalized_tl}\l__wise_profile_affix_normalized_tl}
+          {\tl_clear:N\l__wise_profile_affix_normalized_tl}
+        % A renamed term has no inferred plural; use it for both forms.
+        \tl_if_eq:NNF\l__wise_document_name_normalized_tl\l__wise_profile_affix_normalized_tl
+          {\use:e{\exp_not:N\prop_put:Nnn\exp_not:N\l__wise_options_prop
+            {#1/\l__wise_document_name_side_tl-plural}{\__wise_document_name_tokens:}}}
+        \use:e{\exp_not:N\prop_put:Nnn\exp_not:N\l__wise_options_prop
+          {#1/\l__wise_document_name_side_tl}{\__wise_document_name_tokens:}}
+      }
+  }
+% Protect the name command itself while preparing the inherited affix value.
+\cs_new:Npn \__wise_document_name_tokens:
+  {\exp_not:c{\l__wise_document_name_cs_tl}
+   \str_if_eq:VnT\l__wise_document_name_side_tl{prefix}{\exp_not:N\__wise_document_name_separator:}}
+\cs_new:Npn \__wise_document_name_separator:
+  {\prop_item:Nn\l__wise_options_prop{name-separator}}
+%    \end{macrocode}
+%
+% \subsection{Grouping, sorting, and ranges}
+% Type information comes from the previous auxiliary file. Ordinary numeric
+% labels are eligible for numeric sorting and range compression; custom tags
+% and alphabetic sublabels are not treated as integers.
+%    \begin{macrocode}
+\cs_new_protected:Npn \__wise_get_type:n #1
+  {
+    \prop_get:NeNTF \g__wise_labels_prop {#1} \l__wise_value_tl
+      {\exp_after:wN \__wise_unpack:nn \l__wise_value_tl}
+      {\tl_clear:N \l__wise_current_type_tl \tl_set:Nn \l__wise_format_mode_tl {normal}
+       \__wise_external_type:n{#1}}
+  }
+\cs_new_protected:Npn \__wise_unpack:nn #1#2
+  {\tl_set:Nn \l__wise_current_type_tl {#1}\tl_set:Nn \l__wise_format_mode_tl {#2}}
+\cs_new_protected:Npn \__wise_group_flush:
+  {
+    \seq_if_empty:NF \l__wise_group_seq
+      {\seq_put_right:Ne \l__wise_groups_seq
+        {{\exp_not:V \l__wise_previous_type_tl}{\seq_use:Nn \l__wise_group_seq {,}}}
+       \seq_clear:N \l__wise_group_seq}
+  }
+% Only canonical numeric labels are eligible. Custom tags and alphabetic
+% sublabels are never guessed to be a numeric range.
+\cs_new_protected:Npn \__wise_numeric:n #1
+  {
+    \bool_set_false:N \l__wise_numeric_bool
+    \tl_clear:N \l__wise_sort_a_parent_tl
+    \int_zero:N \l__wise_sort_a_int
+    \__wise_get_type:n {#1}
+    \str_if_eq:VnT \l__wise_format_mode_tl {normal}
+      {
+        \cs_if_exist:cT {r@#1}
+          {
+            \tl_set:Ne \l__wise_number_tl {\tl_item:cn {r@#1}{1}}
+            \regex_extract_once:nVNTF {\A (.*?)([0-9]+)\Z} \l__wise_number_tl \l__wise_sort_match_seq
+              {\bool_set_true:N \l__wise_numeric_bool
+                \tl_set:Ne \l__wise_sort_a_parent_tl {\seq_item:Nn \l__wise_sort_match_seq {2}}
+                % Identical numeric prefixes in different PDFs are not one range.
+                \cs_if_exist:NT\IfPropertyRecordedTF
+                  {\IfPropertyRecordedT{#1@wiseref}{xr-url}
+                    {\tl_set:Ne\l__wise_sort_a_parent_tl
+                      {{\RefProperty{#1@wiseref}{xr-url}}{\l__wise_sort_a_parent_tl}}}}
+               \int_set:Nn \l__wise_sort_a_int {\seq_item:Nn \l__wise_sort_match_seq {3}}}
+              {}
+          }
+      }
+  }
+\cs_new_protected:Npn \__wise_sort:
+  {
+    \prop_clear:N \l__wise_type_order_prop \int_zero:N \l__wise_type_order_int
+    \seq_map_inline:Nn \l__wise_keys_seq
+      {
+        \__wise_get_type:n {##1}
+        \prop_if_in:NVF \l__wise_type_order_prop \l__wise_current_type_tl
+          {\int_incr:N \l__wise_type_order_int
+           \prop_put:NVx \l__wise_type_order_prop \l__wise_current_type_tl {\int_use:N \l__wise_type_order_int}}
+      }
+    \seq_sort:Nn \l__wise_keys_seq
+      {
+        \__wise_numeric:n {##1}
+        \tl_set_eq:NN \l__wise_sort_b_type_tl \l__wise_current_type_tl
+        \tl_set_eq:NN \l__wise_sort_b_parent_tl \l__wise_sort_a_parent_tl
+        \int_set_eq:NN \l__wise_sort_b_int \l__wise_sort_a_int
+        \__wise_numeric:n {##2}
+        \int_compare:nNnTF
+          {\prop_item:NV \l__wise_type_order_prop \l__wise_sort_b_type_tl}
+          > {\prop_item:NV \l__wise_type_order_prop \l__wise_current_type_tl}
+          {\sort_return_swapped:}
+          {
+            \bool_lazy_and:nnTF
+              {\tl_if_eq_p:NN \l__wise_sort_b_type_tl \l__wise_current_type_tl}
+              {\tl_if_eq_p:NN \l__wise_sort_b_parent_tl \l__wise_sort_a_parent_tl}
+              {\int_compare:nNnTF \l__wise_sort_b_int > \l__wise_sort_a_int
+                 {\sort_return_swapped:}{\sort_return_same:}}
+              {\sort_return_same:}
+          }
+      }
+  }
+\cs_new_protected:Npn \__wise_run_flush:
+  {
+    \int_compare:nNnTF {\seq_count:N \l__wise_run_seq} > {2}
+      {\seq_put_right:Ne \l__wise_units_seq
+        {{\seq_item:Nn \l__wise_run_seq {1}}{\seq_item:Nn \l__wise_run_seq {-1}}}}
+      {\seq_map_inline:Nn \l__wise_run_seq {\seq_put_right:Nn \l__wise_units_seq {{##1}{}}}}
+    \seq_clear:N \l__wise_run_seq
+  }
+\cs_new_protected:Npn \__wise_units:
+  {
+    \seq_clear:N \l__wise_units_seq \seq_clear:N \l__wise_run_seq
+    \seq_map_inline:Nn \l__wise_group_seq
+      {
+        \bool_if:NTF \l__wise_compress_bool
+          {
+            \__wise_numeric:n {##1}
+            \bool_lazy_and:nnTF {\bool_if_p:N \l__wise_numeric_bool}
+              {\bool_lazy_and_p:nn
+                {\tl_if_eq_p:NN \l__wise_run_parent_tl \l__wise_sort_a_parent_tl}
+                {\int_compare_p:nNn {\l__wise_sort_a_int}={\l__wise_run_last_int+1}}}
+              {}
+              {\__wise_run_flush:}
+            \tl_set_eq:NN \l__wise_run_parent_tl \l__wise_sort_a_parent_tl
+            \int_set_eq:NN \l__wise_run_last_int \l__wise_sort_a_int
+            \seq_put_right:Nn \l__wise_run_seq {##1}
+            \bool_if:NF \l__wise_numeric_bool {\__wise_run_flush:}
+          }
+          {\seq_put_right:Nn \l__wise_units_seq {{##1}{}}}
+      }
+    \__wise_run_flush:
+  }
+\cs_new_protected:Npn \__wise_affix:nN #1#2
+  {
+    \prop_get:NeNTF \l__wise_options_prop {\l__wise_group_type_tl/#1} #2 {} {\tl_clear:N #2}
+    \int_compare:nNnT {\seq_count:N \l__wise_group_seq}>{1}
+      {\prop_get:NeNT \l__wise_options_prop {\l__wise_group_type_tl/#1-plural} \l__wise_value_tl
+        {\tl_set_eq:NN #2 \l__wise_value_tl}}
+  }
+%    \end{macrocode}
+%
+% \subsection{Number and link output}
+% Reuse existing labels and destinations. An unlinked ref provides the number
+% before applying its format, avoiding nested links. Per-call overrides are
+% stored only within the reference command's group.
+%    \begin{macrocode}
+\cs_new_protected:Npn \__wise_link:nn #1#2
+  {
+    \bool_if:NTF \l__wise_link_bool
+      {
+        \cs_if_exist:NTF \hyperref
+          {\cs_if_exist:cTF {r@#1}{\hyperref[#1]{#2}}{#2}}
+          {#2}
+      }
+      {#2}
+  }
+\cs_new_protected:Npn \__wise_number:n #1
+  {
+    \__wise_get_type:n {#1}
+    \cs_if_exist:cTF {r@#1}
+      {
+        \cs_if_exist:NTF \hyperref
+          {\tl_set:Nn \l__wise_number_tl {\ref*{#1}}}
+          {\tl_set:Nn \l__wise_number_tl {\ref{#1}}}
+        \str_if_eq:VnTF \l__wise_format_mode_tl {bare}
+          {\tl_use:N \l__wise_number_tl}
+          {
+            \prop_get:NeNTF \l__wise_options_prop {\l__wise_group_type_tl/number-format} \l__wise_value_tl
+              {\use:e{\exp_not:N \cs_set:Npn \exp_not:N \__wise_format:n ##1 {\exp_not:V \l__wise_value_tl}}
+               \exp_args:NV \__wise_format:n \l__wise_number_tl}
+              {\tl_use:N \l__wise_number_tl}
+          }
+      }
+      {\msg_warning:nnn {wiseref}{undefined}{#1}\textbf{??}}
+  }
+\cs_new_protected:Npn \__wise_group:nn #1#2
+  {
+    \tl_set:Nn \l__wise_group_type_tl {#1}
+    \seq_set_from_clist:Nn \l__wise_group_seq {#2}
+    \tl_if_empty:nTF {#1}
+      {\seq_map_inline:Nn \l__wise_group_seq
+        {\cs_if_exist:cT{r@##1}{\msg_warning:nnn{wiseref}{unnumbered}{##1}}}}
+      {\prop_if_in:NnF \l__wise_options_prop {#1/prefix}
+        {\msg_warning:nnn{wiseref}{unknown-type}{#1}}}
+    \__wise_affix:nN {prefix}\l__wise_prefix_tl
+    \__wise_affix:nN {suffix}\l__wise_suffix_tl
+    \tl_if_novalue:VF \l__wise_prefix_override_tl {\tl_set_eq:NN \l__wise_prefix_tl \l__wise_prefix_override_tl}
+    \tl_if_novalue:VF \l__wise_suffix_override_tl {\tl_set_eq:NN \l__wise_suffix_tl \l__wise_suffix_override_tl}
+    \__wise_units:
+    \int_zero:N \l__wise_number_index_int
+    \bool_if:NF \l__wise_link_affixes_bool {\tl_use:N \l__wise_prefix_tl}
+    \seq_map_inline:Nn \l__wise_units_seq {\__wise_unit:nn ##1}
+    \bool_if:NF \l__wise_link_affixes_bool {\tl_use:N \l__wise_suffix_tl}
+  }
+\cs_new_protected:Npn \__wise_unit:nn #1#2
+  {
+        \int_incr:N \l__wise_number_index_int
+        \int_compare:nNnT \l__wise_number_index_int > {1}
+          {\prop_item:Ne \l__wise_options_prop
+            {\int_compare:nNnTF \l__wise_number_index_int = {\seq_count:N \l__wise_units_seq}
+               {number-last-separator}{number-separator}}}
+        \__wise_link:nn {#1}
+          {
+            \bool_if:NT \l__wise_link_affixes_bool
+              {\int_compare:nNnT \l__wise_number_index_int = {1}{\tl_use:N \l__wise_prefix_tl}}
+            \__wise_number:n {#1}
+            \bool_if:NT \l__wise_link_affixes_bool
+              {\tl_if_empty:nT {#2}
+                {\int_compare:nNnT \l__wise_number_index_int = {\seq_count:N \l__wise_units_seq}{\tl_use:N \l__wise_suffix_tl}}}
+          }
+        \tl_if_empty:nF {#2}
+          {\prop_item:Nn \l__wise_options_prop {range-separator}
+           \__wise_link:nn {#2}
+             {\__wise_number:n {#2}
+              \bool_if:NT \l__wise_link_affixes_bool
+                {\int_compare:nNnT \l__wise_number_index_int = {\seq_count:N \l__wise_units_seq}{\tl_use:N \l__wise_suffix_tl}}}}
+  }
+% Inform mathtools that all equation labels in the call are referenced, including
+% intermediate labels in compressed ranges. Its public API handles showonlyrefs.
+\cs_new_protected:Npn\__wise_mark_equations:
+  {\IfPackageLoadedT{mathtools}
+    {\cs_if_exist:NT\noeqref
+      {\seq_map_inline:Nn\l__wise_keys_seq
+        {\__wise_get_type:n{##1}
+         \str_if_eq:VnT\l__wise_current_type_tl{equation}{\noeqref{##1}}}}}}
+\NewDocumentCommand \wref {s o m o}
+  {
+    \group_begin:
+      \IfBooleanT{#1}{\bool_set_false:N \l__wise_link_bool}
+      \tl_set:Nn \l__wise_prefix_override_tl {#2}
+      \tl_set:Nn \l__wise_suffix_override_tl {#4}
+      \seq_set_from_clist:Nn \l__wise_keys_seq {#3}
+      \__wise_mark_equations:
+      \__wise_resolve_options:
+      \bool_if:NT \l__wise_sort_bool {\__wise_sort:}
+      \seq_clear:N \l__wise_groups_seq \seq_clear:N \l__wise_group_seq
+      \tl_clear:N \l__wise_previous_type_tl
+      \seq_map_inline:Nn \l__wise_keys_seq
+        {
+          \__wise_get_type:n {##1}
+          \tl_if_eq:NNF \l__wise_current_type_tl \l__wise_previous_type_tl {\__wise_group_flush:}
+          \tl_set_eq:NN \l__wise_previous_type_tl \l__wise_current_type_tl
+          \seq_put_right:Nn \l__wise_group_seq {##1}
+        }
+      \__wise_group_flush:
+      \int_zero:N \l__wise_group_index_int
+      \seq_map_inline:Nn \l__wise_groups_seq
+        {
+          \int_incr:N \l__wise_group_index_int
+          \int_compare:nNnT \l__wise_group_index_int > {1}
+            {\prop_item:Ne \l__wise_options_prop
+              {\int_compare:nNnTF \l__wise_group_index_int = {\seq_count:N \l__wise_groups_seq}
+                {group-last-separator}{group-separator}}}
+          \__wise_group:nn ##1
+        }
+    \group_end:
+  }
+\ExplSyntaxOff
+\endinput
+%</package>
+%    \end{macrocode}
+% \Finale

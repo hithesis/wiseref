@@ -1,0 +1,186 @@
+# Copyright (C) 2026 Junhao Wu. LPPL 1.3c or later.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Workflow and test-policy checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: test/requirements-ci.txt
+      - name: Install test dependencies
+        run: python -m pip install -r test/requirements-ci.txt
+      - name: Validate GitHub Actions workflows
+        run: |
+          curl --fail --location --retry 3 https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz -o "$RUNNER_TEMP/actionlint.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color
+      - name: Validate Python syntax and CI policy
+        run: |
+          python -m compileall -q test
+          python test/test-ci.py
+
+  compatibility:
+    name: TeX Live ${{ matrix.texlive }} compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - texlive: '2023'
+            image: texlive/texlive:TL2023-historic@sha256:2f2c860f230355ecd0c94ddf4398b315648c6c547b92086db2c02e26c3d98392
+          - texlive: '2024'
+            image: texlive/texlive:TL2024-historic@sha256:fb0fed9b911b4836314f8041d27d7ff75dd1544d12ee359a2a91f765609c072d
+          - texlive: '2025'
+            image: texlive/texlive:TL2025-historic@sha256:7056390eac37715fd3e01875037ceb4016cb17d44c611f7bbbfa7a012007979f
+          - texlive: '2026'
+            image: ghcr.io/xu-cheng/texlive-debian:20261001@sha256:78ac2204b8df113aca0561e8f173ad5b89ee51e90795173d2fe9bcf0fbce162e
+    container:
+      image: ${{ matrix.image }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      LANG: C.UTF-8
+      CI_TEXLIVE_IMAGE: ${{ matrix.image }}
+      max_print_line: '1000'
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up test tools
+        uses: ./.github/actions/setup-test-tools
+      - name: Verify and record the toolchain
+        run: python3 test/ci-environment.py --expected-year '${{ matrix.texlive }}' --output test/output/ci-environment.json
+      - name: Run three-engine core, language, and ctex regressions
+        run: make check
+      - name: Run portable package interactions
+        if: ${{ !cancelled() }}
+        run: |
+          make sty
+          python3 test/packages.py --suite portable --jobs 2 --work test/output/packages-portable
+      - name: Write test summary
+        if: ${{ !cancelled() }}
+        run: python3 test/ci-report.py --label 'TeX Live ${{ matrix.texlive }}' --summary "$GITHUB_STEP_SUMMARY"
+      - name: Upload test logs and result records
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-texlive-${{ matrix.texlive }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            test/output/**/*.log
+            test/output/**/*.json
+            test/output/**/*.tex
+            test/output/**/candidate.sty
+
+  documentation:
+    name: Manuals and CTAN archive
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: ghcr.io/xu-cheng/texlive-debian:20261001@sha256:78ac2204b8df113aca0561e8f173ad5b89ee51e90795173d2fe9bcf0fbce162e
+    defaults:
+      run:
+        shell: bash
+    env:
+      LANG: C.UTF-8
+      CI_TEXLIVE_IMAGE: ghcr.io/xu-cheng/texlive-debian:20261001@sha256:78ac2204b8df113aca0561e8f173ad5b89ee51e90795173d2fe9bcf0fbce162e
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up test tools
+        uses: ./.github/actions/setup-test-tools
+      - name: Verify and record the toolchain
+        run: python3 test/ci-environment.py --expected-year 2026 --output test/output/ci-environment.json
+      - name: Verify the release tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 test/release.py --check-tag "$RELEASE_TAG"
+      - name: Build standard CTAN and TDS archives and inspect manual links
+        run: make ctan
+      - name: Compile shipped examples from an isolated TDS installation
+        run: make check-examples
+      - name: Write installed-example test summary
+        if: ${{ !cancelled() }}
+        run: python3 test/ci-report.py --label 'Installed package examples' --summary "$GITHUB_STEP_SUMMARY"
+      - name: Upload manuals and CTAN candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: wiseref-manuals-and-ctan
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            wiseref-en.pdf
+            wiseref-zh.pdf
+            dist/*.zip
+            dist/SHA256SUMS
+            wiseref-example-en.tex
+            wiseref-example-zh.tex
+            test/output/examples-*/**/main.pdf
+      - name: Upload documentation build logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-build-logs
+          retention-days: 14
+          path: |
+            wiseref*.log
+            dist/*.build.log
+            test/output/ci-environment.json
+            test/output/ci-toolchain-probe/*.log
+            test/output/examples-*/**/*.log
+            test/output/examples-*/results.json
+            build/doc/*.log
+            build/unpacked/*.log
+
+  required:
+    name: CI passed
+    if: ${{ always() }}
+    needs: [lint, compatibility, documentation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every validation job to succeed
+        env:
+          REQUIRED_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          jobs = json.loads(os.environ['REQUIRED_JOB_RESULTS'])
+          for name, job in jobs.items():
+              print(f"{name}: {job['result']}")
+          sys.exit(any(job['result'] != 'success' for job in jobs.values()))
+          PY

@@ -1,0 +1,58 @@
+% Real ctex documents; no profile registration or language-manager prerequisite.
+\begin{document}
+\ifdefined\WiseChapter\chapter{Methods}\label{chapter-target}\fi
+\section{Methods}\label{section-target}
+\begin{figure}[htbp]\centering\rule{20mm}{3mm}\caption{First}\label{a}\end{figure}
+\begin{figure}[htbp]\centering\rule{20mm}{3mm}\caption{Second}\label{b}\end{figure}
+\begin{figure}[htbp]\centering\rule{20mm}{3mm}\caption{Third}\label{c}\end{figure}
+\begin{table}[htbp]\caption{Table}\label{t}\end{table}
+\begin{equation}a=b\label{e}\end{equation}
+\begin{equation}c=d\tag{S}\label{tagged}\end{equation}
+\begin{equation}e=f\tag*{S}\label{bare}\end{equation}
+\begin{theorem}\label{thm}A numbered statement.\end{theorem}
+\begin{lemma}\label{lem}A statement sharing a counter.\end{lemma}
+\appendix
+\ifdefined\WiseChapter\chapter{Supplement}\else\section{Supplement}\fi
+\label{app}
+\section*{Unnumbered notes}\label{unnumbered}
+\clearpage
+Standard references: \ref{a}, \ref{t}, \eqref{e}, \ref{thm}, \ref{lem}, \ref{app}.
+\ifdefined\WiseChecks
+  \WiseCase{pair}{\wref{a,b}}
+  \WiseCase{mixed}{\wref{a,t,e}}
+  {\wiserefsetup{compress=true}\WiseCase{range}{\wref{a,b,c}}}
+  \WiseCase{equation}{\wref{e}}
+  \WiseCase{tagged}{\wref{tagged}}
+  \WiseCase{bare}{\wref{bare}}
+  \WiseCase{section}{\wref{section-target}}
+  \ifdefined\WiseChapter\WiseCase{chapter}{\wref{chapter-target}}\fi
+  \WiseCase{theorem}{\wref{thm}}
+  \WiseCase{lemma}{\wref{lem}}
+  \WiseCase{appendix}{\wref{app}}
+  {\ctexset{figurename=照片}
+   \WiseCase{renamed}{\wref{a,b}}
+   \wiserefsetup{lang=en}
+   \WiseCase{explicit-en}{\wref{a,b}}}
+  \WiseCase{restored}{\wref{a,b}}
+  {\ctexset{figurename=照片}
+   \wiserefsetup{figure={use-document-name=false}}
+   \WiseCase{name-off}{\wref{a,b}}
+   \wiserefsetup{figure={use-document-name=true}}
+   \WiseCase{name-on}{\wref{a,b}}}
+  {\def\sectionname{段}
+   \WiseCase{heading-name}{\wref{section-target}}
+   \wiserefsetup{section={use-document-name=false}}
+   \WiseCase{heading-name-off}{\wref{section-target}}}
+  {\wiserefsetup{lang=zh}\WiseCase{explicit-zh}{\wref{a,b}}}
+  {\wiserefsetup{figure={prefix={Custom~}},equation={number-format={[#1]}},
+                group-last-separator={+}}
+   \WiseCase{override-auto}{\wref{a,e}}
+   \wiserefsetup{lang=en}\WiseCase{override-en}{\wref{a,e}}
+   \wiserefsetup{lang=auto}\WiseCase{override-back}{\wref{a,e}}}
+  \WiseCase{after-override}{\wref{a,b}}
+  \ifdefined\WiseManager
+    {\selectlanguage{french}\WiseCase{local-french}{\wref{a,b}}}
+    \WiseCase{after-french}{\wref{a,b}}
+  \fi
+\fi
+\end{document}

@@ -1,0 +1,13 @@
+\NeedsTeXFormat{LaTeX2e}[2023/06/01]
+\ProvidesPackage{wiseref-probe}[2026/10/08 Cross-reference feasibility probe]
+
+% Test instrumentation only: observe the standard label hook without replacing
+% \label, \refstepcounter, captions, theorem environments or equation numbering.
+\newcommand\WiseProbeRecord[6]{}
+\newcommand\WiseProbeCapture[1]{%
+  \protected@write\@auxout{}{%
+    \string\WiseProbeRecord{#1}{\@currentcounter}{\@currentlabel}%
+      {\@currenvir}{\@currentHref}{\thepage}}%
+}
+\AddToHookWithArguments{label}[wiseref-probe]{\WiseProbeCapture{#1}}
+\endinput

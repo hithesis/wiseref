@@ -1,0 +1,17 @@
+# Copyright (C) 2026 Junhao Wu. LPPL 1.3c or later.
+name: Set up test tools
+description: Install Python test dependencies inside a Debian TeX Live container
+runs:
+  using: composite
+  steps:
+    - name: Install system tools
+      shell: bash
+      run: |
+        apt-get update
+        apt-get install --yes --no-install-recommends make python3-venv fontconfig
+    - name: Install pinned Python dependencies
+      shell: bash
+      run: |
+        python3 -m venv --system-site-packages /tmp/wiseref-ci-python
+        /tmp/wiseref-ci-python/bin/python -m pip install --disable-pip-version-check -r test/requirements-ci.txt
+        echo /tmp/wiseref-ci-python/bin >> "$GITHUB_PATH"

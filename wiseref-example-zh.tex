@@ -1,0 +1,38 @@
+% Copyright (C) 2026 Junhao Wu. LPPL 1.3c or later; see LICENSE.
+% Compile with XeLaTeX or LuaLaTeX, at least twice; fonts come from TeX Live.
+\documentclass[fontset=fandol]{ctexart}
+\usepackage{amsmath}
+\usepackage{wiseref}
+\usepackage[colorlinks=true]{hyperref}
+\newcommand\Result[2]{\par\noindent\hypertarget{example.#1}{}#2\par}
+\begin{document}
+\section*{wiseref 示例}
+\begin{figure}[htbp]\centering\fbox{A}\caption{第一个对象}\label{picture-a}\end{figure}
+\begin{figure}[htbp]\centering\fbox{B}\caption{第二个对象}\label{picture-b}\end{figure}
+\begin{figure}[htbp]\centering\fbox{C}\caption{第三个对象}\label{picture-c}\end{figure}
+\begin{table}[htbp]\centering\caption{示例数据}\label{table-a}
+  \begin{tabular}{cc}A&B\\1&2\end{tabular}
+\end{table}
+\begin{equation}a=b\label{equation}\end{equation}
+\clearpage
+\subsection*{单个引用}
+\Result{single}{\wref{picture-a}}
+\subsection*{混合引用}
+\Result{mixed}{\wref{picture-a,table-a,equation}}
+\subsection*{排序与范围压缩}
+{\wiserefsetup{sort=true,compress=true}
+ \Result{range}{\wref{picture-c,picture-a,picture-b}}}
+\ctexset{figurename=照片}
+\subsection*{文档中的名称}
+\Result{document-name}{\wref{picture-a}}
+\subsection*{语言预设中的名称}
+{\wiserefsetup{figure={use-document-name=false}}
+ \Result{profile-name}{\wref{picture-a}}}
+\subsection*{把名称放在编号后}
+{\wiserefsetup{figure={prefix={},suffix={~\figurename}}}
+ \Result{suffix-name}{\wref{picture-a}}}
+\subsection*{只显示编号}
+\Result{number-only}{\wref[]{picture-a}[]}
+\subsection*{不带链接的引用}
+\Result{star}{\wref*{picture-a}}
+\end{document}

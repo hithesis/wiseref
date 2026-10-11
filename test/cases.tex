@@ -1,0 +1,96 @@
+% The driver selects only a standard class and ordinary public packages.
+% Label names are deliberately unrelated to the kind of their targets.
+\begin{document}
+Forward reference: \ref{alpha}.
+
+\ifdefined\chapter
+  \chapter{Main chapter}\label{main-chapter}
+\fi
+\section{Main section}\label{main-section}
+
+\begin{figure}[htbp]
+  \centering\rule{25mm}{5mm}
+  \caption{A figure with an arbitrary label}\label{alpha}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering\begin{tabular}{cc}a&b\\c&d\end{tabular}
+  \caption{A table whose label looks like an equation}\label{eq:not-equation}
+\end{table}
+
+\begin{equation}
+  a=b\label{fig:not-figure}
+\end{equation}
+
+\begin{align}
+  x&=y\label{row-one}\\
+  u&=v\label{row-two}
+\end{align}
+
+\begin{subequations}\label{family}
+  \begin{equation}p=q\label{family-one}\end{equation}
+  \begin{equation}r=s\label{family-two}\end{equation}
+\end{subequations}
+
+% Same raw tag, but different visible forms: (S) versus S.
+\begin{equation}c=d\tag{S}\label{tag-with-parentheses}\end{equation}
+\begin{equation}e=f\tag*{S}\label{tag-without-parentheses}\end{equation}
+
+\begin{theorem}\label{statement}
+  A theorem.
+\end{theorem}
+\begin{lemma}\label{shared-counter}
+  A lemma sharing the theorem counter.
+  \begin{probe-wrapper}
+    The same lemma, inside an unrelated environment.\label{nested-label}
+  \end{probe-wrapper}
+\end{lemma}
+
+\begin{enumerate}
+  \item First item.\label{outer-item}
+    \begin{enumerate}
+      \item Nested item.\label{inner-item}
+    \end{enumerate}
+\end{enumerate}
+A footnote\footnote{A labelled footnote.\label{note}}.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}{.35\linewidth}
+    \centering\rule{20mm}{5mm}
+    \caption{First panel}\label{panel-one}
+  \end{subfigure}
+  \begin{subfigure}{.35\linewidth}
+    \centering\rule{20mm}{5mm}
+    \caption{Second panel}\label{panel-two}
+  \end{subfigure}
+  \caption{A figure with two panels}\label{panels}
+\end{figure}
+
+% Ordinary numbered references still work inside moving arguments.
+\section{Reference to Figure \ref{alpha}}\label{moving-title}
+
+\appendix
+\ifdefined\chapter
+  \chapter{Supplement}\label{supplement}
+\else
+  \section{Supplement}\label{supplement}
+\fi
+\begin{equation}g=h\label{appendix-equation}\end{equation}
+
+\section*{An unnumbered heading}\label{unnumbered}
+The label above must not be mistaken for a newly numbered heading.
+
+\clearpage
+REFERENCE-CHECK-BEGIN
+\par
+Figure \ref{alpha}; table \ref{eq:not-equation}; equation \ref{fig:not-figure}.
+\par
+Theorem \ref{statement}; lemma \ref{shared-counter}; nested \ref{nested-label}.
+\par
+Tags \ref{tag-with-parentheses} and \ref{tag-without-parentheses}.
+\par
+Panels \ref{panel-one} and \ref{panel-two}; appendix \ref{supplement}.
+\par
+REFERENCE-CHECK-END
+\end{document}

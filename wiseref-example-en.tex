@@ -1,0 +1,38 @@
+% Copyright (C) 2026 Junhao Wu. LPPL 1.3c or later; see LICENSE.
+% Compile with pdfLaTeX, XeLaTeX, or LuaLaTeX, at least twice.
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{wiseref}
+\usepackage[colorlinks=true]{hyperref}
+\newcommand\Result[2]{\par\noindent\hypertarget{example.#1}{}#2\par}
+\begin{document}
+\section*{Wiseref examples}
+\begin{figure}[htbp]\centering\fbox{A}\caption{First object}\label{picture-a}\end{figure}
+\begin{figure}[htbp]\centering\fbox{B}\caption{Second object}\label{picture-b}\end{figure}
+\begin{figure}[htbp]\centering\fbox{C}\caption{Third object}\label{picture-c}\end{figure}
+\begin{table}[htbp]\centering\caption{Sample data}\label{table-a}
+  \begin{tabular}{cc}A&B\\1&2\end{tabular}
+\end{table}
+\begin{equation}a=b\label{equation}\end{equation}
+\clearpage
+\subsection*{Single reference}
+\Result{single}{\wref{picture-a}}
+\subsection*{Mixed references}
+\Result{mixed}{\wref{picture-a,table-a,equation}}
+\subsection*{Sorted range}
+{\wiserefsetup{sort=true,compress=true}
+ \Result{range}{\wref{picture-c,picture-a,picture-b}}}
+\renewcommand\figurename{Photo}
+\subsection*{Current document name}
+\Result{document-name}{\wref{picture-a}}
+\subsection*{Language profile name}
+{\wiserefsetup{figure={use-document-name=false}}
+ \Result{profile-name}{\wref{picture-a}}}
+\subsection*{Name after the number}
+{\wiserefsetup{figure={prefix={},suffix={~\figurename}}}
+ \Result{suffix-name}{\wref{picture-a}}}
+\subsection*{Number only}
+\Result{number-only}{\wref[]{picture-a}[]}
+\subsection*{Reference without a link}
+\Result{star}{\wref*{picture-a}}
+\end{document}

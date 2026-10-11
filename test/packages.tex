@@ -1,0 +1,142 @@
+% Interactions with real numbered environments and other reference commands.
+\begin{document}
+\section{Methods}\label{topic}
+\ifdefined\WiseUnicode
+  Unicode math: $\symbf{A}\symup{d}x+\alpha+\int_0^1 x^2\,\symup{d}x$.
+\fi
+\begin{figure}[htbp]\centering\rule{20mm}{3mm}\caption{Image}\label{picture}\end{figure}
+\begin{table}[htbp]\caption{Table}\label{table}\end{table}
+\begin{equation}a=b\label{equation}\ifdefined\WiseZref\zlabel{z-equation}\fi\end{equation}
+\begin{equation}c=d\label{only-wise}\end{equation}
+\begin{align}x&=y\label{line-a}\\u&=v\label{line-b}\end{align}
+\begin{subequations}\label{family}
+  \begin{equation}p=q\label{child-a}\end{equation}
+  \begin{equation}r=s\label{child-b}\end{equation}
+\end{subequations}
+\begin{equation}a=c\tag{S}\label{tagged}\end{equation}
+\begin{equation}b=d\tag*{S}\label{bare}\end{equation}
+\ifdefined\WiseMathtools
+  \begin{equation}\begin{split}a&=b+c\\&=d\end{split}\label{split}\end{equation}
+\fi
+\begin{theorem}\label{statement}A numbered theorem.\end{theorem}
+\begin{lemma}\label{lemma}Another numbered statement.\end{lemma}
+\ifdefined\WiseNTStress
+  \begin{claim}[Named claim]\label{nt-claim}A custom environment sharing a counter.\end{claim}
+  \begin{lemma}[Named lemma]\label{nt-title}
+    A nested note\footnote{A note inside a lemma.\label{nt-footnote}}.
+    \begin{quote}The same lemma in an unrelated environment.\label{nt-nested}\end{quote}
+    \begin{equation}x=y\label{nt-equation}\end{equation}
+  \end{lemma}
+  \begin{remark}\label{nt-star}An unnumbered remark.\end{remark}
+\fi
+\ifdefined\WiseTcolorbox
+  \begin{wisebox}{A boxed theorem}{box}A numbered box.\end{wisebox}
+\fi
+\ifdefined\WiseMdframed
+  \begin{framedtheorem}\label{framed}A framed theorem.\end{framedtheorem}
+\fi
+\ifdefined\WiseRestatable
+  \begin{restatable}{theorem}{storedtheorem}\label{restated}A restatable theorem.\end{restatable}
+  \storedtheorem*
+\fi
+\begin{figure}[htbp]\centering
+  \ifdefined\WiseSubfig
+    \subfloat[Panel]{\rule{20mm}{3mm}\label{panel}}
+  \else
+    \begin{subfigure}{.4\linewidth}\centering\rule{20mm}{3mm}\caption{Panel}\label{panel}\end{subfigure}
+  \fi
+  \caption{Panels}\label{panels}
+\end{figure}
+\ifdefined\WiseEnumitem
+  \begin{enumerate}[label=\Roman*.,ref=\Roman*]
+\else\begin{enumerate}\fi
+  \item An item.\label{item}
+\end{enumerate}
+A footnote\footnote{A labelled note.\label{note}}.
+\ifdefined\WiseListing
+  \begin{lstlisting}[caption={Program},label={program}]
+int value = 1;
+  \end{lstlisting}
+  \begin{longtable}{cc}
+    \caption{Long table}\label{long-table}\\
+    A&B\\C&D\\
+  \end{longtable}
+\fi
+\ifdefined\WiseAlgorithm
+  \begin{algorithm}[htbp]\caption{Procedure}\label{procedure}
+    \begin{algorithmic}\State $x\gets 1$\end{algorithmic}
+  \end{algorithm}
+\fi
+\ifdefined\WiseAlgorithmTwo
+  \begin{algorithm}[htbp]\caption{Procedure}\label{procedure}
+    $x\gets 1$\;
+  \end{algorithm}
+\fi
+\ifdefined\WiseMinted
+  \begin{listing}[htbp]\caption{Highlighted code}\label{minted-code}
+    \begin{minted}{python}
+value = 1
+print(value)
+    \end{minted}
+  \end{listing}
+\fi
+\appendix\section{Supplement}\label{appendix}
+\section*{Unnumbered notes}\label{unnumbered}
+\clearpage
+Standard references: \ref{picture}, \eqref{equation}, \ref{lemma}, \subref{panel}.
+\par Name and number: \nameref{topic}, \getrefnumber{picture}.
+\ifdefined\WiseCleveref\par Cleveref: \cref{picture,equation,lemma}.\fi
+\ifdefined\WiseVarioref\par Varioref: \vref{picture}.\fi
+\ifdefined\WiseZref\par Zref: \zcref{z-equation}.\fi
+\ifdefined\WiseExternal\par External: \ref{remote-equation}.\fi
+\ifdefined\WiseBibliography
+  \par Citation: \textcite{sample}.\printbibliography
+\fi
+\ifdefined\WiseChecks
+  \clearpage
+  \WiseCase{figure}{\wref{picture}}
+  \WiseCase{table}{\wref{table}}
+  \WiseCase{equation}{\wref{equation}}
+  \WiseCase{only-wise}{\wref{only-wise}}
+  \WiseCase{align}{\wref{line-a,line-b}}
+  {\wiserefsetup{compress=true}\WiseCase{range}{\wref{equation,only-wise,line-a}}}
+  \WiseCase{subequation}{\wref{child-a}}
+  \WiseCase{tagged}{\wref{tagged}}
+  \WiseCase{bare}{\wref{bare}}
+  \WiseCase{theorem}{\wref{statement}}
+  \WiseCase{lemma}{\wref{lemma}}
+  \WiseCase{panel}{\wref{panel}}
+  \WiseCase{item}{\wref{item}}
+  \WiseCase{footnote}{\wref{note}}
+  \WiseCase{appendix}{\wref{appendix}}
+  \WiseCase{star}{\wref*{picture}}
+  \ifdefined\WiseMathtools\WiseCase{split}{\wref{split}}\fi
+  \ifdefined\WiseListing
+    \WiseCase{listing}{\wref{program}}
+    \WiseCase{longtable}{\wref{long-table}}
+  \fi
+  \ifdefined\WiseAlgorithm\WiseCase{algorithm}{\wref{procedure}}\fi
+  \ifdefined\WiseAlgorithmTwo\WiseCase{algorithm}{\wref{procedure}}\fi
+  \ifdefined\WiseNTStress
+    \WiseCase{nt-claim}{\wref{nt-claim}}
+    {\wiserefsetup{lang=auto}\WiseCase{nt-title}{\wref{nt-title}}}
+    \WiseCase{nt-nested}{\wref{nt-nested}}
+    \WiseCase{nt-equation}{\wref{nt-equation}}
+    \WiseCase{nt-footnote}{\wref{nt-footnote}}
+    \WiseCase{nt-star}{\wref{nt-star}}
+  \fi
+  \ifdefined\WiseMinted\WiseCase{minted}{\wref{minted-code}}\fi
+  \ifdefined\WiseTcolorbox\WiseCase{boxed}{\wref{bx:box}}\fi
+  \ifdefined\WiseMdframed\WiseCase{framed}{\wref{framed}}\fi
+  \ifdefined\WiseRestatable\WiseCase{restated}{\wref{restated}}\fi
+  \ifdefined\WiseExternal
+    \WiseCase{external}{\wref{remote-equation}}
+    \WiseCase{external-tag}{\wref{remote-tagged}}
+    \WiseCase{external-bare}{\wref{remote-bare}}
+    \WiseCase{external-appendix}{\wref{remote-appendix}}
+    {\wiserefsetup{compress=true}
+     \WiseCase{external-range}{\wref{remote-equation,remote-next,remote-third}}
+     \WiseCase{origins}{\wref{remote-equation,only-wise,remote-third}}}
+  \fi
+\fi
+\par\end{document}

@@ -1,0 +1,28 @@
+% Focused tagged-PDF fixture; the full package fixture is tested separately.
+\begin{document}
+\section{Methods}\label{topic}
+\begin{figure}[htbp]\centering\rule{20mm}{3mm}\caption{Image}\label{picture}\end{figure}
+\begin{table}[htbp]\caption{Table}\label{table}\begin{tabular}{cc}A&B\\C&D\end{tabular}\end{table}
+\begin{equation}a=b\label{equation}\end{equation}
+\begin{equation}c=d\label{only-wise}\end{equation}
+\begin{align}x&=y\label{line-a}\\u&=v\label{line-b}\end{align}
+\begin{equation}a=c\tag{S}\label{tagged}\end{equation}
+\begin{equation}b=d\tag*{S}\label{bare}\end{equation}
+\appendix\section{Supplement}\label{appendix}
+\clearpage
+Standard references: \ref{picture}, \ref{table}, \eqref{equation}, \ref{appendix}.
+\par
+\ifdefined\WiseChecks
+  \clearpage
+  \WiseCase{figure}{\wref{picture}}
+  \WiseCase{table}{\wref{table}}
+  \WiseCase{equation}{\wref{equation}}
+  \WiseCase{only-wise}{\wref{only-wise}}
+  \WiseCase{align}{\wref{line-a,line-b}}
+  {\wiserefsetup{compress=true}\WiseCase{range}{\wref{equation,only-wise,line-a}}}
+  \WiseCase{tagged}{\wref{tagged}}
+  \WiseCase{bare}{\wref{bare}}
+  \WiseCase{appendix}{\wref{appendix}}
+  \WiseCase{star}{\wref*{picture}}
+\fi
+\par\end{document}

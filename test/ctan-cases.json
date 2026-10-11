@@ -1,0 +1,50 @@
+{
+  "archives": {
+    "dejavu": "https://mirrors.ctan.org/fonts/dejavu.zip",
+    "ieeetran": "https://mirrors.ctan.org/macros/latex/contrib/IEEEtran.zip",
+    "elsarticle": "https://mirrors.ctan.org/macros/latex/contrib/elsarticle.zip",
+    "revtex": "https://mirrors.ctan.org/macros/latex/contrib/revtex.zip",
+    "acmart": "https://mirrors.ctan.org/macros/latex/contrib/acmart.zip",
+    "abntex2": "https://mirrors.ctan.org/macros/latex/contrib/abntex2.zip",
+    "bxjscls": "https://mirrors.ctan.org/language/japanese/BX/bxjscls.zip",
+    "jlreq": "https://mirrors.ctan.org/macros/jptex/latex/jlreq.zip",
+    "luacode": "https://mirrors.ctan.org/macros/luatex/latex/luacode.zip",
+    "zxjatype": "https://mirrors.ctan.org/language/japanese/zxjatype.zip",
+    "babel-portuges": "https://mirrors.ctan.org/macros/latex/contrib/babel-contrib/portuges.zip"
+  },
+  "fonts": [
+    "https://mirrors.ctan.org/fonts/haranoaji/HaranoAjiMincho-Regular.otf",
+    "https://mirrors.ctan.org/fonts/haranoaji/HaranoAjiMincho-Bold.otf",
+    "https://mirrors.ctan.org/fonts/haranoaji/HaranoAjiGothic-Regular.otf",
+    "https://mirrors.ctan.org/fonts/haranoaji/HaranoAjiGothic-Medium.otf",
+    "https://mirrors.ctan.org/fonts/haranoaji/HaranoAjiGothic-Bold.otf",
+    "https://mirrors.ctan.org/fonts/amiri/Amiri-Regular.ttf",
+    "https://mirrors.ctan.org/fonts/amiri/Amiri-Bold.ttf"
+  ],
+  "cases": [
+    {"class":"scrartcl","lang":"german","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"scrreprt","lang":"french","chapter":true,"engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"scrbook","lang":"portuguese","chapter":true,"options":"oneside","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"scrartcl","lang":"dutch","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"scrartcl","lang":"greek","unicode_font":true,"engines":["lualatex","xelatex"]},
+    {"class":"scrartcl","lang":"russian","unicode_font":true,"engines":["lualatex","xelatex"]},
+    {"class":"scrartcl","lang":"arabic","arabic":true,"engines":["lualatex"]},
+    {"class":"memoir","lang":"spanish","chapter":true,"options":"oneside","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"memoir","lang":"italian","chapter":true,"options":"oneside","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"amsart","lang":"english","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"amsbook","lang":"english","chapter":true,"options":"oneside","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"beamer","lang":"english","beamer":true,"engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"beamer","lang":"french","beamer":true,"engines":["lualatex"]},
+    {"class":"ctexart","lang":"chinese","cjk":true,"options":"fontset=fandol","engines":["lualatex","xelatex"]},
+    {"class":"ctexbook","lang":"chinese","cjk":true,"chapter":true,"options":"fontset=fandol,oneside","engines":["lualatex","xelatex"]},
+    {"class":"ltjsarticle","lang":"japanese","japanese":true,"engines":["lualatex"]},
+    {"class":"bxjsarticle","lang":"japanese","japanese":true,"options_by_engine":{"lualatex":"lualatex,ja=standard","xelatex":"xelatex,ja=standard"},"engines":["lualatex","xelatex"]},
+    {"class":"jlreq","lang":"japanese","japanese":true,"options":"lualatex","engines":["lualatex"]},
+    {"class":"IEEEtran","lang":"english","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"elsarticle","lang":"english","options":"preprint","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"elsarticle","lang":"french","options":"preprint","engines":["lualatex"]},
+    {"class":"revtex4-2","lang":"english","options":"aps,preprint","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"acmart","lang":"english","options":"manuscript,review=false,nonacm","engines":["lualatex","xelatex","pdflatex"]},
+    {"class":"abntex2","lang":"portuguese","chapter":true,"options":"oneside,brazil","engines":["lualatex","xelatex","pdflatex"]}
+  ]
+}

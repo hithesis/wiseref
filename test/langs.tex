@@ -1,0 +1,158 @@
+% English-only fixtures also exercise profiles used by Chinese documents.
+\documentclass{article}
+\usepackage{amsmath}
+\ifdefined\WiseBabel
+  \usepackage{babel}
+  \babelprovide[import,main]{english}
+  \babelprovide[import]{french}
+\fi
+\ifdefined\WisePolyglossia
+  \usepackage{polyglossia}
+  \setdefaultlanguage{english}
+  \setotherlanguage{french}
+  \setmainfont{Latin Modern Roman}
+\fi
+\usepackage{hyperref}
+\usepackage{wiseref}
+\wiserefsetup{
+  langs={french={
+    figure={prefix={Illustration~},prefix-plural={Illustrations~}},
+    table={prefix={Tableau~},prefix-plural={Tableaux~}},
+    equation={prefix={Equation~},prefix-plural={Equations~}},
+    number-last-separator={~et~},group-last-separator={~et~},
+  }},
+  lang-aliases={fr=french},
+}
+\newcounter{widget}
+\newcommand\widgetname{Widget}
+\newcommand\LangCase[2]{\par\noindent L-#1-B #2 L-#1-E\par}
+\begin{document}
+\section{Heading}\label{s}
+\begin{figure}[htbp]\caption{First}\label{a}\end{figure}
+\begin{figure}[htbp]\caption{Second}\label{b}\end{figure}
+\begin{table}[htbp]\caption{Table}\label{t}\end{table}
+\begin{equation}a=b\label{e}\end{equation}
+\refstepcounter{widget}\label{w}
+\clearpage
+\LangCase{default}{\wref{a}}
+\LangCase{custom-type}{\wref{w}}
+{\renewcommand\figurename{Picture}
+ \LangCase{document-name}{\wref{a}}
+ \LangCase{unknown-plural}{\wref{a,b}}
+ \wiserefsetup{figure={prefix-plural={Pictures~}}}
+ \LangCase{document-plural}{\wref{a,b}}
+ \wiserefsetup{lang=en}
+ \LangCase{explicit-language}{\wref{a}}}
+{\wiserefsetup{lang=fr}
+ \LangCase{registered}{\wref{a,b,t}}
+ \wiserefsetup{langs={fr={range-separator={~through~}}}}
+ \LangCase{updated-profile}{\wref{a,b}}}
+{\wiserefsetup{figure={prefix={Photo~},prefix-plural={Photos~}}}
+ \wiserefsetup{lang=fr}
+ \LangCase{override-survives}{\wref{a,b}}}
+\LangCase{after-group}{\wref{a}}
+{\def\CurrentDocumentLang{en}
+ \wiserefsetup{lang={\CurrentDocumentLang}}
+ \LangCase{callback-en}{\wref{a}}
+ \def\CurrentDocumentLang{fr}
+ \LangCase{callback-fr}{\wref{a}}}
+{\wiserefsetup{equation={prefix={Custom~},number-format={[#1]}}}
+ \wiserefsetup{lang=fr}
+ \LangCase{format-survives}{\wref{e}}}
+{\wiserefsetup{lang=auto,figure={use-document-name=false}}
+ \renewcommand\figurename{Picture}
+ \LangCase{inheritance-disabled}{\wref{a}}
+ \LangCase{disabled-plural}{\wref{a,b}}
+ \renewcommand\tablename{Data}
+ \LangCase{disabled-one-type}{\wref{a,t}}
+ \wiserefsetup{figure={use-document-name=true}}
+ \LangCase{inheritance-reenabled}{\wref{a}}}
+{\renewcommand\figurename{Picture}
+ \wiserefsetup{langs={english={figure={use-document-name=false}}}}
+ \LangCase{profile-disables-name}{\wref{a}}
+ \wiserefsetup{figure={use-document-name=true}}
+ \LangCase{setup-enables-name}{\wref{a}}
+ {\wiserefsetup{figure={use-document-name=false}}
+  \LangCase{nested-disables-name}{\wref{a}}}
+ \LangCase{nested-restores-name}{\wref{a}}}
+{\wiserefsetup{figure={use-document-name=false,prefix={Photo~},suffix={!},number-format={[#1]}}}
+ \renewcommand\figurename{Picture}
+ \LangCase{disabled-explicit-affixes}{\wref{a}}}
+{\wiserefsetup{figure={use-document-name=false}}
+ \renewcommand\figurename{\DisabledNameMustNotExpand}
+ \LangCase{disabled-unusable-name}{\wref{a}}}
+{\renewcommand\figurename{Picture}
+ \wiserefsetup{figure={use-document-name=false}}
+ {\wiserefsetup{langs={english={figure={use-document-name=true}}}}
+  \LangCase{setup-disables-profile-name}{\wref{a}}}}
+{\renewcommand\figurename{Picture}
+ \wiserefsetup{figure={prefix={},suffix={~\figurename},suffix-plural={~Pictures}}}
+ \LangCase{name-as-suffix}{\wref{a}}
+ \LangCase{plural-name-as-suffix}{\wref{a,b}}
+ \renewcommand\figurename{Photo}
+ \LangCase{suffix-name-changes}{\wref{a}}}
+{\wiserefsetup{lang=fr,figure={use-document-name=true}}
+ \renewcommand\figurename{Picture}
+ \LangCase{fixed-lang}{\wref{a}}}
+% ASCII affixes exercise Japanese heading placement without requiring CJK fonts.
+{\wiserefsetup{lang-aliases={english=japanese},
+   langs={japanese={section={prefix={Part~},suffix={~Section}}}}}
+ \def\sectionname{~Unit}
+ \LangCase{ja-heading}{\wref{s}}
+ \wiserefsetup{section={use-document-name=false}}
+ \LangCase{ja-heading-off}{\wref{s}}}
+{\wiserefsetup{lang=auto,figure={prefix={},suffix={}}}
+ \renewcommand\figurename{Picture}
+ \LangCase{empty-override}{\wref{a}}}
+{\renewcommand\figurename{Early}
+ \LangCase{early}{\wref{a}}
+ \renewcommand\figurename{Late}
+ \LangCase{late}{\wref{a}}}
+{\renewcommand\figurename{figure}
+ \LangCase{native-case}{\wref{a}}}
+{\renewcommand\equationautorefname{\UndefinedLegacyFontCommand}
+ \LangCase{unusable-autoref-name}{\wref{e}}}
+{\renewcommand\figurename[2]{Picture #1 #2}
+ \LangCase{parameterized-name}{\wref{a}}}
+\ExplSyntaxOn
+\msg_redirect_name:nnn{wiseref}{lang-cycle}{none}
+\msg_redirect_name:nnn{wiseref}{bad-key}{none}
+\msg_redirect_name:nnn{wiseref}{unknown-explicit-lang}{none}
+\ExplSyntaxOff
+{\wiserefsetup{lang-aliases={french=fr},lang=fr}
+ \LangCase{cycle-rollback}{\wref{a}}}
+{\wiserefsetup{language=zh}
+ \LangCase{old-key-rejected}{\wref{a}}}
+{\renewcommand\figurename{Picture}
+ \ExplSyntaxOn
+ \msg_redirect_name:nnn{wiseref}{bad-key}{warning}
+ \msg_redirect_name:nnn{keys}{choice-unknown}{warning}
+ \ExplSyntaxOff
+ \wiserefsetup{figure={name-position=none}}
+ \LangCase{old-position-rejected}{\wref{a}}
+ \wiserefsetup{figure={use-document-name=none}}
+ \LangCase{nonboolean-rejected}{\wref{a}}}
+{\wiserefsetup{lang=unregistered}
+ \LangCase{unknown-fixed}{\wref{a}}}
+\ifdefined\WiseBabel
+ {\selectlanguage{french}\renewcommand\figurename{Image}
+  \LangCase{local-french}{\wref{a,b}}
+  \wiserefsetup{figure={prefix={Photo~},prefix-plural={Photos~}}}
+  \LangCase{local-override}{\wref{a,b}}
+  \selectlanguage{english}
+  \LangCase{switch-preserves}{\wref{a,b}}}
+ \LangCase{back-english}{\wref{a,b}}
+ {\def\languagename{unregistered-document}
+  \LangCase{unknown-auto}{\wref{a}}
+  \LangCase{unknown-auto-again}{\wref{a}}}
+\fi
+\ifdefined\WisePolyglossia
+ {\selectlanguage{french}\renewcommand\figurename{Image}
+  \LangCase{local-french}{\wref{a,b}}
+  \wiserefsetup{figure={prefix={Photo~},prefix-plural={Photos~}}}
+  \LangCase{local-override}{\wref{a,b}}
+  \selectlanguage{english}
+  \LangCase{switch-preserves}{\wref{a,b}}}
+ \LangCase{back-english}{\wref{a,b}}
+\fi
+\end{document}
