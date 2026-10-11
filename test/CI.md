@@ -80,6 +80,8 @@ library versions, engine banners, Biber/minted versions, source hash, and commit
 SHA. A compiled probe also records the LaTeX kernel date, expl3 date, and
 availability of the record-property interface. Python dependencies are pinned in
 [requirements-ci.txt](requirements-ci.txt).
+All three formats are initialized serially before parallel test builds, avoiding
+first-use format-generation races in historic images. Their kernel dates must agree.
 The container uses a virtual environment with system packages visible so TeX
 Live's bundled helpers can still use their dependencies.
 
@@ -120,11 +122,29 @@ make ctan
 make check-examples
 ```
 
-CI configuration is a test plan, not evidence that an unexecuted matrix has
-passed. The first hosted run will establish the older-image results. Workflow
-YAML and the local test-policy checks can be validated without starting Docker.
+Workflow YAML and local test-policy checks can be validated without Docker.
+Recorded results apply to the tested commit and environment; a code fix still
+needs a new hosted run to establish the full matrix result.
 
 Local checks on 2026-10-10 passed actionlint, nine CI-policy tests, Python syntax,
 the 78-case portable suite, the four Greek/Russian DejaVu cases, and all three
 lifecycle cases. Tagging produced two basic passes and two matching known
-baseline failures. The hosted historic-image jobs have not yet been executed.
+baseline failures. These checks preceded the first hosted historic-image run.
+
+## First hosted run and compatibility fixes
+
+[Run 38110108326](https://github.com/hithesis/wiseref/actions/runs/38110108326)
+passed the TL 2026 core/portable suites and workflow checks. It exposed three
+issues: archive PDF validation used the source-root path instead of `build/doc`,
+TL 2023 lacked convenience conditionals used by the package, and shared theorem
+counters lost the environment type on earlier kernels. The archive reader now
+validates the actual PDF location. Package/property checks use the supported TF
+forms; old file-load checks read the same LaTeX version record as the newer API.
+Signature-checked theorem hooks retain environment types and handle cleveref's
+dispatcher and thmtools restatable wrappers without altering standard numbering.
+
+Local reproduction uses clean source copies and isolated Linux containers.
+The exact CI TL 2023 image passed the 36 observation cases and six API cases
+after the fixes. Supplemental historic snapshots exercised language/ctex and
+theorem-package scenarios. ARM-host amd64 emulation also produced transient
+engine crashes; these are not treated as passes or suppressed in hosted CI.

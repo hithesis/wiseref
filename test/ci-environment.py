@@ -38,21 +38,32 @@ def main():
     year = verify_year(engines.values(), args.expected_year)
     probe = args.output.parent / 'ci-toolchain-probe'
     probe.mkdir(parents=True, exist_ok=True)
-    (probe / 'probe.tex').write_text(r'''\documentclass{article}
+    probe_source = r'''\documentclass{article}
 \begin{document}
 \typeout{CI-KERNEL:\fmtversion}
 \typeout{CI-PROPERTY-API:\ifdefined\RecordProperties true\else false\fi}
 Toolchain probe.
 \end{document}
-''', encoding='utf-8')
-    with (probe / 'compile.log').open('w', encoding='utf-8') as stream:
-        subprocess.run(['pdflatex', '-no-shell-escape', '-interaction=nonstopmode',
-                        '-halt-on-error', 'probe.tex'], cwd=probe, stdout=stream,
-                       stderr=subprocess.STDOUT, check=True, timeout=60)
-    log = (probe / 'probe.log').read_text(errors='replace')
-    kernel = re.search(r'CI-KERNEL:(\S+)', log).group(1)
-    expl3 = re.search(r'L3 programming layer <([^>]+)>', log).group(1)
-    property_api = 'CI-PROPERTY-API:true' in log
+'''
+    formats = {}
+    # Warm each format serially before parallel test jobs. Historic images may
+    # build missing formats on demand; concurrent first runs can race.
+    for engine in ('lualatex', 'xelatex', 'pdflatex'):
+        folder = probe / engine
+        folder.mkdir(exist_ok=True)
+        (folder / 'probe.tex').write_text(probe_source, encoding='utf-8')
+        with (folder / 'compile.log').open('w', encoding='utf-8') as stream:
+            subprocess.run([engine, '-no-shell-escape', '-interaction=nonstopmode',
+                            '-halt-on-error', 'probe.tex'], cwd=folder, stdout=stream,
+                           stderr=subprocess.STDOUT, check=True, timeout=120)
+        log = (folder / 'probe.log').read_text(errors='replace')
+        formats[engine] = dict(latex_kernel=re.search(r'CI-KERNEL:(\S+)', log).group(1),
+                               expl3_date=re.search(r'L3 programming layer <([^>]+)>', log).group(1),
+                               record_properties=bool(re.search(r'CI-PROPERTY-API:\s*true', log)))
+    if len({item['latex_kernel'] for item in formats.values()}) != 1:
+        raise ValueError('The three engines use different LaTeX kernel dates')
+    kernel, expl3, property_api = (formats['pdflatex'][key]
+                                  for key in ('latex_kernel', 'expl3_date', 'record_properties'))
     tools = {}
     for name in ('latexmk', 'biber', 'latexminted'):
         executable = shutil.which(name)
@@ -63,7 +74,7 @@ Toolchain probe.
         else:
             tools[name] = {'path': None}
     record = dict(texlive_year=year, requested_year=args.expected_year,
-                  latex_kernel=kernel, expl3_date=expl3, record_properties=property_api,
+                  latex_kernel=kernel, expl3_date=expl3, record_properties=property_api, formats=formats,
                   image=os.environ.get('CI_TEXLIVE_IMAGE'), revision=os.environ.get('GITHUB_SHA'),
                   platform=platform.platform(), python=platform.python_version(), engines=engines,
                   tools=tools, libraries={name: metadata.version(name)

@@ -11,6 +11,7 @@ import tempfile
 import subprocess
 import sys
 import unittest
+from unittest import mock
 import zipfile
 
 import yaml
@@ -35,6 +36,26 @@ CLASS_CASES = json.loads((ROOT / 'test/ctan-cases.json').read_text())
 
 
 class TestCIPolicy(unittest.TestCase):
+    def test_clean_checkout_reads_manuals_from_the_build_directory(self):
+        sources = release.payload(include_pdfs=False)
+        output = ROOT / 'test/output'
+        output.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=output) as folder:
+            clean = Path(folder)
+            for name, content in sources.items():
+                target = clean / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(content)
+            documents = clean / 'build/doc'
+            documents.mkdir(parents=True)
+            for language in ('en', 'zh'):
+                (documents / f'wiseref-{language}.pdf').write_bytes(b'%PDF-1.7\nfixture')
+                self.assertFalse((clean / f'wiseref-{language}.pdf').exists())
+            with mock.patch.object(release, 'ROOT', clean):
+                data = release.payload(documents=documents)
+            self.assertEqual(data['wiseref-en.pdf'], b'%PDF-1.7\nfixture')
+            self.assertEqual(data['wiseref-zh.pdf'], b'%PDF-1.7\nfixture')
+
     def test_tds_keeps_runtime_sources_and_helpers_in_their_own_trees(self):
         data = {'wiseref.dtx': b'source', 'README.md': b'documentation', 'test/cases.tex': b'fixture'}
         entries = {'tex/latex/wiseref/wiseref.sty': b'runtime',

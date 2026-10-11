@@ -128,7 +128,9 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: python3 test/release.py --check-tag "$RELEASE_TAG"
       - name: Build standard CTAN and TDS archives and inspect manual links
-        run: make ctan
+        run: |
+          mkdir -p test/output
+          make ctan 2>&1 | tee test/output/ctan-build.log
       - name: Compile shipped examples from an isolated TDS installation
         run: make check-examples
       - name: Write installed-example test summary
@@ -158,11 +160,12 @@ jobs:
             wiseref*.log
             dist/*.build.log
             test/output/ci-environment.json
-            test/output/ci-toolchain-probe/*.log
+            test/output/ci-toolchain-probe/**/*.log
             test/output/examples-*/**/*.log
             test/output/examples-*/results.json
             build/doc/*.log
             build/unpacked/*.log
+            test/output/ctan-build.log
 
   required:
     name: CI passed

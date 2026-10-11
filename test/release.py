@@ -31,7 +31,8 @@ def payload(include_pdfs=True, documents=ROOT):
     basenames = set()
     for path in files:
         relative = path.relative_to(ROOT).as_posix()
-        if path.is_symlink() or not path.is_file():
+        input_path = documents / path.name if path.suffix == '.pdf' else path
+        if input_path.is_symlink() or not input_path.is_file():
             raise ValueError(f'Not a regular source file: {relative}')
         for part in PurePosixPath(relative).parts:
             if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', part):
@@ -39,7 +40,7 @@ def payload(include_pdfs=True, documents=ROOT):
         if path.name.lower() in basenames:
             raise ValueError(f'Duplicate filename ignoring case: {relative}')
         basenames.add(path.name.lower())
-        content = ((documents / path.name) if path.suffix == '.pdf' else path).read_bytes()
+        content = input_path.read_bytes()
         if not content:
             raise ValueError(f'Empty file: {relative}')
         if path.suffix != '.pdf':
